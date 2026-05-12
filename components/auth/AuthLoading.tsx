@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export const AuthLoading = () => {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6 relative overflow-hidden font-sans">
+    <div className="min-h-screen flex items-center justify-center p-6 relative font-sans">
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-primary/10 rounded-full blur-[150px] animate-pulse" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-secondary/5 rounded-full blur-[150px] animate-pulse delay-700" />
