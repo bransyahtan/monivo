@@ -1,7 +1,20 @@
 "use client";
 
-import { Eye, EyeOff, Lock, Mail, Phone, User } from "lucide-react";
-import { useState } from "react";
+import { registerUser } from "@/app/actions/auth";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+  HelpCircle,
+  Loader2,
+  Lock,
+  Mail,
+  Phone,
+  User,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useActionState, useEffect, useState } from "react";
 
 interface RegisterFormProps {
   onToggle: () => void;
@@ -9,6 +22,24 @@ interface RegisterFormProps {
 
 export const RegisterForm = ({ onToggle }: RegisterFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const router = useRouter();
+
+  const [state, action, isPending] = useActionState(registerUser, {});
+
+  useEffect(() => {
+    if (state.message || state.errors) {
+      setShowConfirmModal(false);
+    }
+  }, [state]);
+
+  useEffect(() => {
+    if (state.success) {
+      setTimeout(() => {
+        router.push("/");
+      }, 1500);
+    }
+  }, [state, router]);
 
   return (
     <div className="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -21,7 +52,24 @@ export const RegisterForm = ({ onToggle }: RegisterFormProps) => {
         </p>
       </div>
 
-      <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+      {/* Alert Error Umum */}
+      {state.message && !state.success && (
+        <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-4 rounded-2xl text-center flex items-center justify-center gap-2 animate-in shake-1 duration-300">
+          <AlertCircle className="w-5 h-5 flex-shrink-0" />
+          <p className="text-sm font-medium">{state.message}</p>
+        </div>
+      )}
+
+      {/* Alert Sukses */}
+      {state.success && (
+        <div className="bg-green-500/10 border border-green-500/50 text-green-500 p-4 rounded-2xl text-center flex items-center justify-center gap-2">
+          <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+          <p className="text-sm font-medium">{state.message} Redirecting...</p>
+        </div>
+      )}
+
+      <form id="register-form" className="space-y-5" action={action}>
+        {/* Full Name */}
         <div className="space-y-2">
           <label
             className="text-sm font-medium text-text-secondary ml-1"
@@ -35,13 +83,21 @@ export const RegisterForm = ({ onToggle }: RegisterFormProps) => {
             </div>
             <input
               id="name"
+              name="name"
               type="text"
               placeholder="John Doe"
+              required
               className="w-full bg-surface/50 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all outline-hidden"
             />
           </div>
+          {state.errors?.name && (
+            <p className="text-xs text-red-400 mt-1 ml-1 font-medium italic">
+              *{state.errors.name[0]}
+            </p>
+          )}
         </div>
 
+        {/* Username */}
         <div className="space-y-2">
           <label
             className="text-sm font-medium text-text-secondary ml-1"
@@ -55,17 +111,25 @@ export const RegisterForm = ({ onToggle }: RegisterFormProps) => {
             </div>
             <input
               id="username"
-              type="username"
-              placeholder="Username"
+              name="username"
+              type="text"
+              placeholder="your_username"
+              required
               className="w-full bg-surface/50 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all outline-hidden"
             />
           </div>
+          {state.errors?.username && (
+            <p className="text-xs text-red-400 mt-1 ml-1 font-medium italic">
+              *{state.errors.username[0]}
+            </p>
+          )}
         </div>
 
+        {/* Phone Number */}
         <div className="space-y-2">
           <label
             className="text-sm font-medium text-text-secondary ml-1"
-            htmlFor="phone"
+            htmlFor="phone_number"
           >
             Phone Number
           </label>
@@ -74,14 +138,21 @@ export const RegisterForm = ({ onToggle }: RegisterFormProps) => {
               <Phone className="w-5 h-5" />
             </div>
             <input
-              id="phone"
+              id="phone_number"
+              name="phone_number"
               type="text"
               placeholder="0823......."
               className="w-full bg-surface/50 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all outline-hidden"
             />
           </div>
+          {state.errors?.phone_number && (
+            <p className="text-xs text-red-400 mt-1 ml-1 font-medium italic">
+              *{state.errors.phone_number[0]}
+            </p>
+          )}
         </div>
 
+        {/* Email Address */}
         <div className="space-y-2">
           <label
             className="text-sm font-medium text-text-secondary ml-1"
@@ -95,13 +166,21 @@ export const RegisterForm = ({ onToggle }: RegisterFormProps) => {
             </div>
             <input
               id="email"
+              name="email"
               type="email"
               placeholder="name@example.com"
+              required
               className="w-full bg-surface/50 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all outline-hidden"
             />
           </div>
+          {state.errors?.email && (
+            <p className="text-xs text-red-400 mt-1 ml-1 font-medium italic">
+              *{state.errors.email[0]}
+            </p>
+          )}
         </div>
 
+        {/* Password */}
         <div className="space-y-2">
           <label
             className="text-sm font-medium text-text-secondary ml-1"
@@ -115,8 +194,10 @@ export const RegisterForm = ({ onToggle }: RegisterFormProps) => {
             </div>
             <input
               id="password"
+              name="password"
               type={showPassword ? "text" : "password"}
               placeholder="••••••••"
+              required
               className="w-full bg-surface/50 border border-white/10 rounded-2xl py-4 pl-12 pr-12 text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all outline-hidden"
             />
             <button
@@ -131,12 +212,18 @@ export const RegisterForm = ({ onToggle }: RegisterFormProps) => {
               )}
             </button>
           </div>
+          {state.errors?.password && (
+            <p className="text-xs text-red-400 mt-1 ml-1 font-medium italic">
+              *{state.errors.password[0]}
+            </p>
+          )}
         </div>
 
+        {/* Confirm Password */}
         <div className="space-y-2">
           <label
             className="text-sm font-medium text-text-secondary ml-1"
-            htmlFor="password-confirmation"
+            htmlFor="confirmPassword"
           >
             Confirm Password
           </label>
@@ -145,45 +232,35 @@ export const RegisterForm = ({ onToggle }: RegisterFormProps) => {
               <Lock className="w-5 h-5" />
             </div>
             <input
-              id="password-confirmation"
+              id="confirmPassword"
+              name="confirmPassword"
               type={showPassword ? "text" : "password"}
               placeholder="••••••••"
+              required
               className="w-full bg-surface/50 border border-white/10 rounded-2xl py-4 pl-12 pr-12 text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all outline-hidden"
             />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-4 flex items-center text-text-secondary hover:text-primary transition-colors cursor-pointer"
-            >
-              {showPassword ? (
-                <EyeOff className="w-5 h-5" />
-              ) : (
-                <Eye className="w-5 h-5" />
-              )}
-            </button>
           </div>
+          {state.errors?.confirmPassword && (
+            <p className="text-xs text-red-400 mt-1 ml-1 font-medium italic">
+              *{state.errors.confirmPassword[0]}
+            </p>
+          )}
         </div>
 
-        <div className="text-xs text-text-secondary px-1 py-1">
-          By signing up, you agree to our{" "}
-          <button
-            type="button"
-            className="text-primary hover:underline cursor-pointer"
-          >
-            Terms of Service
-          </button>{" "}
-          and{" "}
-          <button
-            type="button"
-            className="text-primary hover:underline cursor-pointer"
-          >
-            Privacy Policy
-          </button>
-          .
-        </div>
-
-        <button className="w-full bg-primary hover:bg-primary-light text-background font-bold py-4 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/20 cursor-pointer">
-          Create Account
+        <button
+          type="button"
+          onClick={() => setShowConfirmModal(true)}
+          disabled={isPending}
+          className="w-full bg-primary hover:bg-primary-light text-background font-bold py-4 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/20 cursor-pointer flex items-center justify-center gap-2"
+        >
+          {isPending ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Processing...
+            </>
+          ) : (
+            "Create Account"
+          )}
         </button>
       </form>
 
@@ -196,6 +273,48 @@ export const RegisterForm = ({ onToggle }: RegisterFormProps) => {
           Sign in
         </button>
       </p>
+
+      {/* --- CONFIRMATION MODAL --- */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="w-full max-w-sm p-8 rounded-3xl bg-surface border border-white/10 shadow-2xl space-y-6 animate-in zoom-in-95 duration-300">
+            <div className="space-y-2 text-center">
+              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 border border-primary/30">
+                <HelpCircle className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-2xl font-bold text-text-primary">
+                Confirmation
+              </h3>
+              <p className="text-text-secondary text-balance">
+                Are you sure the data you entered is correct?
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowConfirmModal(false)}
+                disabled={isPending}
+                className="flex-1 py-3 rounded-xl border border-white/10 text-text-secondary hover:bg-white/5 transition-colors font-medium cursor-pointer disabled:opacity-50"
+              >
+                Review
+              </button>
+              <button
+                form="register-form"
+                type="submit"
+                disabled={isPending}
+                className="flex-1 py-3 rounded-xl bg-primary text-background font-bold hover:bg-primary-light transition-all shadow-lg shadow-primary/20 cursor-pointer disabled:opacity-50 flex items-center justify-center"
+              >
+                {isPending ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  "Yes, Submit"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

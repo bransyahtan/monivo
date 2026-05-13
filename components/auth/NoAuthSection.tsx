@@ -3,7 +3,7 @@
 import { Wallet } from "lucide-react";
 import Link from "next/link";
 
-export const AuthLoading = () => {
+export const NoAuthSection = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative font-sans">
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
