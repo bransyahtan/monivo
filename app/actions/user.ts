@@ -1,9 +1,15 @@
 "use server";
 
 import { sql } from "@/lib/db";
+import { getSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
 export async function toggleUserActivation(userId: number, currentStatus: boolean) {
+  const session = await getSession();
+  if (!session || session.role !== "admin") {
+    return { success: false, message: "Unauthorized action." };
+  }
+
   try {
     const nextStatus = !currentStatus;
     const activatedAt = nextStatus ? new Date() : null;
@@ -23,6 +29,11 @@ export async function toggleUserActivation(userId: number, currentStatus: boolea
 }
 
 export async function updateUser(userId: number, prevState: unknown, formData: FormData) {
+  const session = await getSession();
+  if (!session || session.role !== "admin") {
+    return { success: false, message: "Unauthorized action." };
+  }
+
   const name = formData.get("name")?.toString().trim();
   const role = formData.get("role")?.toString().trim();
 
@@ -50,6 +61,11 @@ export async function updateUser(userId: number, prevState: unknown, formData: F
 }
 
 export async function deleteUser(formData: FormData) {
+  const session = await getSession();
+  if (!session || session.role !== "admin") {
+    return { success: false, message: "Unauthorized action." };
+  }
+
   const userId = Number(formData.get("id"));
 
   if (!userId) {
