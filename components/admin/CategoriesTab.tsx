@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { DeleteCategoryButton } from "@/components/admin/DeleteCategoryButton";
 
-interface Category {
+export interface Category {
   id: number;
   name: string;
   slug: string;

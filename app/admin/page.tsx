@@ -1,9 +1,9 @@
 import { AddBankForm } from "@/components/admin/AddBankForm";
 import { AddCategoryForm } from "@/components/admin/AddCategoryForm";
 import { EditUserForm } from "@/components/admin/EditUserForm";
-import { BanksTab } from "@/components/admin/BanksTab";
-import { CategoriesTab } from "@/components/admin/CategoriesTab";
-import { UsersTab } from "@/components/admin/UsersTab";
+import { BanksTab, Bank } from "@/components/admin/BanksTab";
+import { CategoriesTab, Category } from "@/components/admin/CategoriesTab";
+import { UsersTab, User as AdminUser } from "@/components/admin/UsersTab";
 import { getSession } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -84,9 +84,9 @@ export default async function AdminPage({ searchParams }: PageProps) {
     }
   }
 
-  let banks: any[] = [];
-  let categories: any[] = [];
-  let users: any[] = [];
+  let banks: Bank[] = [];
+  let categories: Category[] = [];
+  let users: AdminUser[] = [];
   let totalRecords = 0;
 
   if (tab === "banks") {

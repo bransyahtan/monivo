@@ -27,7 +27,9 @@ export const RegisterForm = ({ onToggle }: RegisterFormProps) => {
 
   useEffect(() => {
     if (state.message || state.errors) {
-      setShowConfirmModal(false);
+      setTimeout(() => {
+        setShowConfirmModal(false);
+      }, 0);
     }
   }, [state]);
 

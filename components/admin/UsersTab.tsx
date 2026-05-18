@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ToggleActivationButton } from "@/components/admin/ToggleActivationButton";
 import { DeleteUserButton } from "@/components/admin/DeleteUserButton";
 
-interface User {
+export interface User {
   id: number;
   name: string;
   username: string;

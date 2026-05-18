@@ -74,8 +74,7 @@ export const AuthPageContainer = () => {
                 Master Your Portfolio
               </h3>
               <p className="text-text-secondary text-lg leading-relaxed italic">
-                "Monivo transformed how I track my investments. The real-time
-                insights are a game changer for my financial freedom."
+                {"\"Monivo transformed how I track my investments. The real-time insights are a game changer for my financial freedom.\""}
               </p>
               <div className="mt-6 flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30">
@@ -109,8 +108,7 @@ export const AuthPageContainer = () => {
                 Join the Future
               </h3>
               <p className="text-text-secondary text-lg leading-relaxed italic">
-                "Signing up was the best decision for my savings. The community
-                and tools here are second to none."
+                {"\"Signing up was the best decision for my savings. The community and tools here are second to none.\""}
               </p>
               <div className="mt-6 flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center border border-secondary/30">

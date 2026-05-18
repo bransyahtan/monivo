@@ -56,12 +56,15 @@ export const BalanceChart = () => {
   const [lineFilter, setLineFilter] = useState<Timeframe>("1M");
 
   useEffect(() => {
-    setMounted(true);
+    const frame = requestAnimationFrame(() => {
+      setMounted(true);
+    });
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   if (!mounted) {
     return (
-      <div className="animate-pulse bg-surface/30 border border-white/5 rounded-3xl h-[380px] w-full" />
+      <div className="animate-pulse bg-surface/30 border border-white/5 rounded-3xl h-[430px] w-full" />
     );
   }
 
@@ -79,7 +82,7 @@ export const BalanceChart = () => {
   };
 
   return (
-    <div className="p-6 rounded-3xl bg-surface/30 border border-white/5 backdrop-blur-xl shadow-xl flex flex-col justify-between h-[380px]">
+    <div className="p-6 rounded-3xl bg-surface/30 border border-white/5 backdrop-blur-xl shadow-xl flex flex-col justify-between h-[430px]">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <span className="text-xs font-bold text-text-secondary uppercase tracking-wider block">
@@ -122,7 +125,7 @@ export const BalanceChart = () => {
       </div>
 
       <div
-        className="flex-1 w-full h-[220px] mt-4"
+        className="flex-1 w-full h-[270px] mt-4"
         style={{ touchAction: "none", outline: "none" }}
       >
         <ResponsiveContainer width="100%" height="100%">

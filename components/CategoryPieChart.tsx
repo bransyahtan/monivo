@@ -96,7 +96,10 @@ export const CategoryPieChart = () => {
   const [pieTab, setPieTab] = useState<TabType>("expense");
 
   useEffect(() => {
-    setMounted(true);
+    const frame = requestAnimationFrame(() => {
+      setMounted(true);
+    });
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   if (!mounted) {
@@ -108,6 +111,10 @@ export const CategoryPieChart = () => {
   const currentPieData = categoryData[pieTab][pieFilter];
   const pieTotal = currentPieData.reduce((sum, item) => sum + item.value, 0);
 
+  const totalExpense = categoryData.expense[pieFilter].reduce((sum, item) => sum + item.value, 0);
+  const totalIncome = categoryData.income[pieFilter].reduce((sum, item) => sum + item.value, 0);
+  const netFlow = totalIncome - totalExpense;
+
   const formatRupiah = (val: number) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -117,7 +124,7 @@ export const CategoryPieChart = () => {
   };
 
   return (
-    <div className="p-6 rounded-3xl bg-surface/30 border border-white/5 backdrop-blur-xl shadow-xl flex flex-col justify-between h-[380px]">
+    <div className="p-6 rounded-3xl bg-surface/30 border border-white/5 backdrop-blur-xl shadow-xl flex flex-col justify-between h-[430px]">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex bg-white/5 p-1 rounded-xl w-fit">
           <button
@@ -128,7 +135,7 @@ export const CategoryPieChart = () => {
                 : "text-text-secondary hover:text-text-primary"
             }`}
           >
-            Pengeluaran
+            Expenses
           </button>
           <button
             onClick={() => setPieTab("income")}
@@ -138,7 +145,7 @@ export const CategoryPieChart = () => {
                 : "text-text-secondary hover:text-text-primary"
             }`}
           >
-            Pemasukan
+            Income
           </button>
         </div>
 
@@ -239,6 +246,26 @@ export const CategoryPieChart = () => {
               </div>
             );
           })}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between pt-4 mt-2 border-t border-white/5 text-xs">
+        <div className="flex items-center gap-4">
+          <div>
+            <span className="text-[9px] uppercase tracking-wider text-text-secondary font-bold">Total Expenses</span>
+            <p className="text-xs font-black text-[#E05B69] mt-0.5">{formatRupiah(totalExpense)}</p>
+          </div>
+          <div className="w-px h-8 bg-white/5" />
+          <div>
+            <span className="text-[9px] uppercase tracking-wider text-text-secondary font-bold">Total Income</span>
+            <p className="text-xs font-black text-primary mt-0.5">{formatRupiah(totalIncome)}</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <span className="text-[9px] uppercase tracking-wider text-text-secondary font-bold">Net Flow</span>
+          <p className={`text-xs font-black mt-0.5 ${netFlow >= 0 ? "text-primary" : "text-[#E05B69]"}`}>
+            {netFlow >= 0 ? "+" : ""}{formatRupiah(netFlow)}
+          </p>
         </div>
       </div>
     </div>
