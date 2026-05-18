@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { loginSchema, registerSchema } from "./auth";
+import { loginSchema, registerSchema } from "@/lib/validations/auth";
 
 describe("registerSchema", () => {
   const validData = {
