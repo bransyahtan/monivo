@@ -1,15 +1,15 @@
 "use client";
 
-import { deleteBank } from "@/app/actions/bank";
+import { deleteUser } from "@/app/actions/user";
 
-interface DeleteBankButtonProps {
+interface DeleteUserButtonProps {
   id: number;
   name: string;
 }
 
-export const DeleteBankButton = ({ id, name }: DeleteBankButtonProps) => {
+export const DeleteUserButton = ({ id, name }: DeleteUserButtonProps) => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    if (!confirm(`Are you sure you want to delete "${name}"?`)) {
+    if (!confirm(`Are you sure you want to delete user "${name}"?`)) {
       e.preventDefault();
     }
   };
@@ -17,7 +17,7 @@ export const DeleteBankButton = ({ id, name }: DeleteBankButtonProps) => {
   return (
     <form
       action={async (formData) => {
-        await deleteBank(formData);
+        await deleteUser(formData);
       }}
       onSubmit={handleSubmit}
       className="inline"
@@ -25,7 +25,7 @@ export const DeleteBankButton = ({ id, name }: DeleteBankButtonProps) => {
       <input type="hidden" name="id" value={id} />
       <button
         type="submit"
-        className="text-red-400 hover:text-red-300 font-bold text-xs transition-colors cursor-pointer bg-transparent border-none p-0 inline"
+        className="text-red-400 hover:text-red-300 font-semibold transition-colors cursor-pointer bg-transparent border-none p-0 inline text-xs"
       >
         Delete
       </button>
