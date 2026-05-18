@@ -3,6 +3,7 @@
 import { sql } from "@/lib/db";
 import { slugify } from "@/lib/utils/slug";
 import { bankSchema } from "@/lib/validations/bank";
+import { getSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
 export type AddBankState = {
@@ -64,6 +65,11 @@ export async function addBank(
   prevState: AddBankState,
   formData: FormData,
 ): Promise<AddBankState> {
+  const session = await getSession();
+  if (!session || session.role !== "admin") {
+    return { success: false, message: "Unauthorized action." };
+  }
+
   const rawData = Object.fromEntries(formData.entries());
   const validatedFields = bankSchema.safeParse(rawData);
 
@@ -106,11 +112,17 @@ export async function addBank(
     return { success: false, message: "Failed to add bank to database." };
   }
 }
+
 export async function updateBank(
   bankId: number,
   prevState: EditBankState,
   formData: FormData,
 ): Promise<EditBankState> {
+  const session = await getSession();
+  if (!session || session.role !== "admin") {
+    return { success: false, message: "Unauthorized action." };
+  }
+
   const rawData = Object.fromEntries(formData.entries());
   const validatedFields = bankSchema.safeParse(rawData);
 
@@ -155,16 +167,25 @@ export async function updateBank(
   }
 }
 
-export async function deleteBank(formData: FormData): Promise<void> {
+export async function deleteBank(formData: FormData) {
+  const session = await getSession();
+  if (!session || session.role !== "admin") {
+    return { success: false, message: "Unauthorized action." };
+  }
+
   const id = Number(formData.get("id"));
-  if (!id) return;
+  if (!id) {
+    return { success: false, message: "Bank ID is required." };
+  }
 
   try {
     await sql`
       DELETE FROM banks WHERE id = ${id}
     `;
     revalidatePath("/admin");
+    return { success: true, message: "Bank successfully deleted!" };
   } catch (error) {
     console.error("Error deleting bank:", error);
+    return { success: false, message: "Failed to delete bank." };
   }
 }
