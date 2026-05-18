@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bankSchema } from "./bank";
+import { bankSchema } from "@/lib/validations/bank";
 
 describe("bankSchema", () => {
   const validBank = {
