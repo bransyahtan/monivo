@@ -17,7 +17,7 @@ export async function getSession() {
       name: payload.name as string,
       role: payload.role as 'admin' | 'customer'
     }
-  } catch (error) {
+  } catch {
     return null
   }
 }

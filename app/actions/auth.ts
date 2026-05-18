@@ -23,7 +23,7 @@ export async function registerUser(
   if (!validatedFields.success) {
     return {
       success: false,
-      errors: validatedFields.error.flatten().fieldErrors as any,
+      errors: validatedFields.error.flatten().fieldErrors as RegisterState["errors"],
       message: "Please check your input and try again.",
     };
   }
@@ -87,7 +87,7 @@ export async function loginUser(
   if (!validatedFields.success) {
     return {
       success: false,
-      errors: validatedFields.error.flatten().fieldErrors as any,
+      errors: validatedFields.error.flatten().fieldErrors as LoginState["errors"],
       message: "Invalid credentials format.",
     };
   }

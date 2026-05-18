@@ -138,7 +138,7 @@ export const LoginForm = ({ onToggle }: LoginFormProps) => {
       </form>
 
       <p className="text-center text-text-secondary">
-        Don't have an account?{" "}
+        {"Don't have an account? "}
         <button
           onClick={onToggle}
           className="text-primary font-bold hover:text-primary-light transition-colors cursor-pointer"

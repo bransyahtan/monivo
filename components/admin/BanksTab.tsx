@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { DeleteBankButton } from "@/components/admin/DeleteBankButton";
 
-interface Bank {
+export interface Bank {
   id: number;
   name: string;
   type: string;

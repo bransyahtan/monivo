@@ -46,8 +46,10 @@ export const AddCategoryForm = ({ categoryToEdit = null }: AddCategoryFormProps)
         if (formRef.current) {
           formRef.current.reset();
         }
-        setName("");
-        setSlug("");
+        setTimeout(() => {
+          setName("");
+          setSlug("");
+        }, 0);
       } else {
         const params = new URLSearchParams(window.location.search);
         params.delete("editCategory");
