@@ -120,20 +120,6 @@ export const LoginForm = ({ onToggle }: LoginFormProps) => {
           )}
         </div>
 
-        <div className="flex items-center space-x-2 ml-1">
-          <input
-            type="checkbox"
-            id="remember"
-            className="w-4 h-4 rounded border-white/10 bg-surface/50 text-primary focus:ring-primary cursor-pointer"
-          />
-          <label
-            htmlFor="remember"
-            className="text-sm text-text-secondary cursor-pointer"
-          >
-            Remember for 30 days
-          </label>
-        </div>
-
         <button
           disabled={isPending}
           className="w-full bg-primary hover:bg-primary-light text-background font-bold py-4 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/20 cursor-pointer flex items-center justify-center gap-2"
