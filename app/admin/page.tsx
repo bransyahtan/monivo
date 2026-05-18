@@ -1,8 +1,9 @@
 import { AddBankForm } from "@/components/admin/AddBankForm";
-import { DeleteBankButton } from "@/components/admin/DeleteBankButton";
-import { DeleteUserButton } from "@/components/admin/DeleteUserButton";
+import { AddCategoryForm } from "@/components/admin/AddCategoryForm";
 import { EditUserForm } from "@/components/admin/EditUserForm";
-import { ToggleActivationButton } from "@/components/admin/ToggleActivationButton";
+import { BanksTab } from "@/components/admin/BanksTab";
+import { CategoriesTab } from "@/components/admin/CategoriesTab";
+import { UsersTab } from "@/components/admin/UsersTab";
 import { getSession } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -15,6 +16,8 @@ interface PageProps {
     edit?: string;
     addBank?: string;
     editUser?: string;
+    addCategory?: string;
+    editCategory?: string;
     tab?: string;
   }>;
 }
@@ -37,7 +40,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
   }
 
   const editId = params.edit ? Number(params.edit) : null;
-  let bankToEdit: { id: number; name: string; type: string } | null = null;
+  let bankToEdit = null;
   if (editId) {
     const [bank] = await sql`
       SELECT id, name, type FROM banks WHERE id = ${editId}
@@ -52,7 +55,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
   }
 
   const editUserId = params.editUser ? Number(params.editUser) : null;
-  let userToEdit: { id: number; name: string; role: string } | null = null;
+  let userToEdit = null;
   if (editUserId) {
     const [user] = await sql`
       SELECT id, name, role FROM users WHERE id = ${editUserId}
@@ -66,18 +69,24 @@ export default async function AdminPage({ searchParams }: PageProps) {
     }
   }
 
-  let banks: { id: number; name: string; type: string; created_at: Date }[] =
-    [];
-  let users: {
-    id: number;
-    name: string;
-    username: string;
-    email: string | null;
-    phone_number: string | null;
-    role: string;
-    is_active: boolean;
-    created_at: Date;
-  }[] = [];
+  const editCategoryId = params.editCategory ? Number(params.editCategory) : null;
+  let categoryToEdit = null;
+  if (editCategoryId) {
+    const [category] = await sql`
+      SELECT id, name, slug FROM categories WHERE id = ${editCategoryId}
+    `;
+    if (category) {
+      categoryToEdit = {
+        id: Number(category.id),
+        name: category.name as string,
+        slug: category.slug as string,
+      };
+    }
+  }
+
+  let banks: any[] = [];
+  let categories: any[] = [];
+  let users: any[] = [];
   let totalRecords = 0;
 
   if (tab === "banks") {
@@ -89,6 +98,17 @@ export default async function AdminPage({ searchParams }: PageProps) {
     `;
     const [countResult] = await sql`
       SELECT COUNT(*) as count FROM banks
+    `;
+    totalRecords = Number(countResult.count);
+  } else if (tab === "categories") {
+    categories = await sql`
+      SELECT id, name, slug, created_at
+      FROM categories
+      ORDER BY id ASC
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+    const [countResult] = await sql`
+      SELECT COUNT(*) as count FROM categories
     `;
     totalRecords = Number(countResult.count);
   } else {
@@ -107,6 +127,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
   const totalPages = Math.ceil(totalRecords / limit) || 1;
 
   const showBankModal = params.addBank === "true" || !!bankToEdit;
+  const showCategoryModal = params.addCategory === "true" || !!categoryToEdit;
   const showUserModal = !!userToEdit;
 
   return (
@@ -141,6 +162,16 @@ export default async function AdminPage({ searchParams }: PageProps) {
             Asset Sources
           </Link>
           <Link
+            href="?tab=categories"
+            className={`px-4 py-2 text-xs font-bold transition-all border-b-2 ${
+              tab === "categories"
+                ? "border-primary text-primary"
+                : "border-transparent text-text-secondary hover:text-text-primary"
+            }`}
+          >
+            Categories
+          </Link>
+          <Link
             href="?tab=users"
             className={`px-4 py-2 text-xs font-bold transition-all border-b-2 ${
               tab === "users"
@@ -153,201 +184,9 @@ export default async function AdminPage({ searchParams }: PageProps) {
         </div>
 
         <div className="p-6 rounded-xl bg-surface border border-white/5 flex flex-col justify-between min-h-[420px]">
-          {tab === "banks" ? (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-lg font-bold text-text-primary tracking-tight">
-                    Registered Asset Sources
-                  </h2>
-                  <p className="text-xs text-text-secondary">
-                    Configure institutional sources, gateways, and cash storage
-                    options.
-                  </p>
-                </div>
-                <Link
-                  href="?tab=banks&addBank=true"
-                  className="px-3 py-2 bg-primary hover:bg-primary/90 text-background font-bold rounded-lg transition-all text-xs cursor-pointer"
-                >
-                  + Add Asset Source
-                </Link>
-              </div>
-
-              {banks.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-white/5 rounded-lg">
-                  <p className="text-text-secondary text-xs">
-                    No configured bank sources found. Click the button above to
-                    register one.
-                  </p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse text-left">
-                    <thead>
-                      <tr className="border-b border-white/5 text-xs font-bold text-text-secondary uppercase tracking-wider">
-                        <th className="pb-3 w-16 text-center">No</th>
-                        <th className="pb-3 pl-3">Name</th>
-                        <th className="pb-3 w-28">Type</th>
-                        <th className="pb-3 w-36">Date Configured</th>
-                        <th className="pb-3 w-28 text-right pr-3">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5 text-xs">
-                      {banks.map((bank) => (
-                        <tr
-                          key={bank.id}
-                          className="hover:bg-white/5 transition-colors"
-                        >
-                          <td className="py-3 text-center text-text-secondary font-mono">
-                            {bank.id}
-                          </td>
-                          <td className="py-3 pl-3 font-semibold text-text-primary">
-                            {bank.name}
-                          </td>
-                          <td className="py-3 text-text-secondary font-medium capitalize">
-                            {bank.type}
-                          </td>
-                          <td className="py-3 text-text-secondary">
-                            {new Date(bank.created_at).toLocaleDateString(
-                              "en-US",
-                              {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                              },
-                            )}
-                          </td>
-                          <td className="py-3 text-right pr-3">
-                            <div className="flex justify-end items-center gap-3">
-                              <Link
-                                href={`?tab=banks&page=${currentPage}&edit=${bank.id}`}
-                                className="text-primary hover:text-primary-light font-semibold transition-colors"
-                              >
-                                Edit
-                              </Link>
-                              <span className="text-white/10">|</span>
-                              <DeleteBankButton
-                                id={Number(bank.id)}
-                                name={bank.name as string}
-                              />
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div>
-                <h2 className="text-lg font-bold text-text-primary tracking-tight">
-                  User Directory
-                </h2>
-                <p className="text-xs text-text-secondary">
-                  Manage registered profiles, adjust role access, and toggle
-                  system login active state.
-                </p>
-              </div>
-
-              {users.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-white/5 rounded-lg">
-                  <p className="text-text-secondary text-xs">
-                    No users registered in the system.
-                  </p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse text-left">
-                    <thead>
-                      <tr className="border-b border-white/5 text-xs font-bold text-text-secondary uppercase tracking-wider">
-                        <th className="pb-3 w-16 text-center">ID</th>
-                        <th className="pb-3 pl-3">Profile Name</th>
-                        <th className="pb-3">Username / Email</th>
-                        <th className="pb-3 w-24">Role</th>
-                        <th className="pb-3 w-28 text-center">Status</th>
-                        <th className="pb-3 w-36">Created At</th>
-                        <th className="pb-3 w-28 text-right pr-3">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5 text-xs">
-                      {users.map((user) => (
-                        <tr
-                          key={user.id}
-                          className="hover:bg-white/5 transition-colors"
-                        >
-                          <td className="py-3 text-center text-text-secondary font-mono">
-                            {user.id}
-                          </td>
-                          <td className="py-3 pl-3">
-                            <div className="font-semibold text-text-primary">
-                              {user.name}
-                            </div>
-                            {user.phone_number && (
-                              <div className="text-[10px] text-text-secondary mt-0.5">
-                                {user.phone_number}
-                              </div>
-                            )}
-                          </td>
-                          <td className="py-3">
-                            <div className="text-text-primary font-medium">
-                              {user.username}
-                            </div>
-                            <div className="text-[10px] text-text-secondary mt-0.5">
-                              {user.email}
-                            </div>
-                          </td>
-                          <td className="py-3 font-semibold capitalize text-text-primary">
-                            <span
-                              className={`px-1.5 py-0.5 rounded text-[10px] ${
-                                user.role === "admin"
-                                  ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                                  : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                              }`}
-                            >
-                              {user.role}
-                            </span>
-                          </td>
-                          <td className="py-3 text-center">
-                            <ToggleActivationButton
-                              userId={Number(user.id)}
-                              isActive={!!user.is_active}
-                            />
-                          </td>
-                          <td className="py-3 text-text-secondary">
-                            {new Date(user.created_at).toLocaleDateString(
-                              "en-US",
-                              {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                              },
-                            )}
-                          </td>
-                          <td className="py-3 text-right pr-3">
-                            <div className="flex justify-end items-center gap-3">
-                              <Link
-                                href={`?tab=users&page=${currentPage}&editUser=${user.id}`}
-                                className="text-primary hover:text-primary-light font-semibold transition-colors"
-                              >
-                                Edit
-                              </Link>
-                              <span className="text-white/10">|</span>
-                              <DeleteUserButton
-                                id={Number(user.id)}
-                                name={user.name as string}
-                              />
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          )}
+          {tab === "banks" && <BanksTab banks={banks} currentPage={currentPage} />}
+          {tab === "categories" && <CategoriesTab categories={categories} currentPage={currentPage} />}
+          {tab === "users" && <UsersTab users={users} currentPage={currentPage} />}
 
           {totalPages > 1 && (
             <div className="flex flex-col sm:flex-row items-center justify-between border-t border-white/5 pt-4 mt-4 gap-4">
@@ -359,7 +198,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
                 to{" "}
                 <span className="font-semibold text-text-primary">
                   {Math.min(
-                    offset + (tab === "banks" ? banks.length : users.length),
+                    offset + (tab === "banks" ? banks.length : tab === "categories" ? categories.length : users.length),
                     totalRecords,
                   )}
                 </span>{" "}
@@ -398,7 +237,6 @@ export default async function AdminPage({ searchParams }: PageProps) {
           )}
         </div>
 
-        {/* Modal Backdrop Container for Banks Form */}
         {showBankModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
             <div className="w-full max-w-lg shadow-2xl relative">
@@ -407,7 +245,14 @@ export default async function AdminPage({ searchParams }: PageProps) {
           </div>
         )}
 
-        {/* Modal Backdrop Container for Users Form */}
+        {showCategoryModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="w-full max-w-md shadow-2xl relative">
+              <AddCategoryForm categoryToEdit={categoryToEdit} />
+            </div>
+          </div>
+        )}
+
         {showUserModal && userToEdit && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
             <div className="w-full max-w-md shadow-2xl relative">

@@ -11,6 +11,7 @@ interface LoginFormProps {
 
 export const LoginForm = ({ onToggle }: LoginFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
   const router = useRouter();
 
   const [state, action, isPending] = useActionState(loginUser, {});
@@ -84,6 +85,7 @@ export const LoginForm = ({ onToggle }: LoginFormProps) => {
             </label>
             <button
               type="button"
+              onClick={() => setShowForgotModal(true)}
               className="text-xs text-primary hover:text-primary-light transition-colors cursor-pointer"
             >
               Forgot password?
@@ -144,6 +146,36 @@ export const LoginForm = ({ onToggle }: LoginFormProps) => {
           Create account
         </button>
       </p>
+
+      {/* --- FORGOT PASSWORD MODAL --- */}
+      {showForgotModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="w-full max-w-sm p-8 rounded-3xl bg-surface border border-white/10 shadow-2xl space-y-6 animate-in zoom-in-95 duration-300">
+            <div className="space-y-2 text-center">
+              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 border border-primary/30">
+                <Lock className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-2xl font-bold text-text-primary">
+                Forgot Password?
+              </h3>
+              <p className="text-text-secondary text-sm leading-relaxed text-balance">
+                To maintain the highest security standards for your Monivo account, password resets are processed manually.
+              </p>
+              <p className="text-text-secondary text-xs font-semibold bg-white/5 border border-white/5 p-3 rounded-xl mt-2">
+                Please contact the System Administrator to verify your identity and safely reset your password.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowForgotModal(false)}
+              className="w-full py-3.5 rounded-xl bg-primary text-background font-bold hover:bg-primary-light transition-all shadow-lg shadow-primary/20 cursor-pointer text-sm"
+            >
+              Got it, thanks!
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
