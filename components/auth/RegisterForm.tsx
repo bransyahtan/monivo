@@ -13,7 +13,6 @@ import {
   Phone,
   User,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState } from "react";
 
 interface RegisterFormProps {
@@ -23,7 +22,6 @@ interface RegisterFormProps {
 export const RegisterForm = ({ onToggle }: RegisterFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const router = useRouter();
 
   const [state, action, isPending] = useActionState(registerUser, {});
 
@@ -36,10 +34,10 @@ export const RegisterForm = ({ onToggle }: RegisterFormProps) => {
   useEffect(() => {
     if (state.success) {
       setTimeout(() => {
-        router.push("/");
-      }, 1500);
+        onToggle();
+      }, 2000);
     }
-  }, [state, router]);
+  }, [state, onToggle]);
 
   return (
     <div className="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
