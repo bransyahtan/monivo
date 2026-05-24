@@ -4,6 +4,7 @@ import { addTransaction } from "@/app/actions/transaction";
 import { Account, Category } from "@/lib/types/finance";
 import { Loader2, Plus, X } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
+import { CurrencyInput } from "./CurrencyInput";
 
 interface TransactionFormProps {
   categories: Category[];
@@ -87,11 +88,9 @@ export const TransactionForm = ({
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary font-bold text-sm">
                     Rp
                   </span>
-                  <input
-                    type="number"
+                  <CurrencyInput
                     name="amount"
                     required
-                    placeholder="0"
                     className="w-full pl-10 pr-4 py-3.5 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 text-text-primary focus:border-primary outline-none transition-all"
                   />
                 </div>

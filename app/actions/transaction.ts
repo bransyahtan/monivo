@@ -49,25 +49,6 @@ export async function getCategories() {
   }
 }
 
-export async function getAccounts() {
-  const session = await getSession();
-  if (!session) return [];
-
-  try {
-    const accounts = await sql`
-      SELECT a.*, b.name as bank_name 
-      FROM accounts a 
-      JOIN banks b ON a.bank_id = b.id 
-      WHERE a.user_id = ${session.userId} 
-      ORDER BY a.account_name ASC
-    `;
-    return accounts;
-  } catch (error) {
-    console.error("GetAccounts Error:", error);
-    return [];
-  }
-}
-
 export async function addTransaction(
   prevState: TransactionState,
   formData: FormData,
