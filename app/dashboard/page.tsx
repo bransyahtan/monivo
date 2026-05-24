@@ -1,15 +1,19 @@
-import { getSession } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import { BalanceChart } from "@/components/BalanceChart";
 import { CategoryPieChart } from "@/components/CategoryPieChart";
-import { RecentTransactions } from "@/components/RecentTransactions";
 import { QuickActions } from "@/components/QuickActions";
+import { RecentTransactions } from "@/components/RecentTransactions";
+import { getSession } from "@/lib/auth";
+import { redirect } from "next/navigation";
+
+import { getTransactions } from "@/app/actions/transaction";
 
 export default async function DashboardPage() {
   const session = await getSession();
   if (!session) {
     redirect("/auth");
   }
+
+  const transactions = await getTransactions(5);
 
   return (
     <div className="space-y-6 font-sans max-w-6xl mx-auto">
@@ -19,7 +23,8 @@ export default async function DashboardPage() {
             Welcome back, {session.name}!
           </h1>
           <p className="text-text-secondary text-xs mt-1">
-            Here is the summary of your overall financial standing and cash flow.
+            Here is the summary of your overall financial standing and cash
+            flow.
           </p>
         </div>
       </div>
@@ -31,7 +36,7 @@ export default async function DashboardPage() {
           <BalanceChart />
           <CategoryPieChart />
         </div>
-        <RecentTransactions />
+        <RecentTransactions transactions={transactions} />
       </div>
     </div>
   );
