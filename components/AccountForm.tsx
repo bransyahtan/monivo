@@ -2,7 +2,7 @@
 
 import { addAccount } from "@/app/actions/account";
 import { Bank } from "@/lib/types/finance";
-import { Coins, Landmark, Loader2, Plus, Wallet, X } from "lucide-react";
+import { Loader2, Plus, X } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 import { CurrencyInput } from "./CurrencyInput";
 
@@ -16,22 +16,10 @@ export const AccountForm = ({ banks }: AccountFormProps) => {
 
   useEffect(() => {
     if (state.success) {
-      setIsOpen(false);
+      const timer = setTimeout(() => setIsOpen(false), 0);
+      return () => clearTimeout(timer);
     }
   }, [state.success]);
-
-  const getBankIcon = (type: string) => {
-    switch (type) {
-      case "bank":
-        return <Landmark className="w-4 h-4" />;
-      case "e-wallet":
-        return <Wallet className="w-4 h-4" />;
-      case "cash":
-        return <Coins className="w-4 h-4" />;
-      default:
-        return null;
-    }
-  };
 
   return (
     <div className="w-full">

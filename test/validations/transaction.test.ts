@@ -46,7 +46,8 @@ describe("transactionSchema", () => {
   });
 
   it("should accept optional category_id as null or undefined", () => {
-    const { category_id: _, ...noCategory } = validTransaction;
+    const noCategory = { ...validTransaction };
+    delete (noCategory as Partial<typeof validTransaction>).category_id;
     const result1 = transactionSchema.safeParse(noCategory);
     expect(result1.success).toBe(true);
 

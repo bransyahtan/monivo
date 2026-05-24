@@ -20,7 +20,8 @@ export const TransactionForm = ({
 
   useEffect(() => {
     if (state.success) {
-      setIsOpen(false);
+      const timer = setTimeout(() => setIsOpen(false), 0);
+      return () => clearTimeout(timer);
     }
   }, [state.success]);
 
