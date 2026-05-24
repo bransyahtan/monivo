@@ -3,13 +3,10 @@
 import { getSession } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { accountSchema } from "@/lib/validations/account";
+import { ActionState } from "@/types/api";
 import { revalidatePath } from "next/cache";
 
-export interface AccountState {
-  success?: boolean;
-  message?: string;
-  errors?: Record<string, string[]>;
-}
+export type AccountState = ActionState;
 
 export async function getAccounts() {
   const session = await getSession();
@@ -240,8 +237,8 @@ export async function getCategoryData(
     const expense: { name: string; value: number }[] = [];
 
     results.forEach((row) => {
-      let name = row.category_name || "Internal Transfer";
-      let value = Number(row.total);
+      const name = row.category_name || "Internal Transfer";
+      const value = Number(row.total);
 
       if (accountId) {
         const id = Number(accountId);

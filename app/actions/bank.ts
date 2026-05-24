@@ -1,19 +1,14 @@
 "use server";
 
+import { getSession } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { slugify } from "@/lib/utils/slug";
 import { bankSchema } from "@/lib/validations/bank";
-import { getSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
-export type AddBankState = {
-  success?: boolean;
-  message?: string;
-  errors?: {
-    name?: string[];
-    type?: string[];
-  };
-};
+import { ActionState } from "@/types/api";
+
+export type AddBankState = ActionState;
 
 export type EditBankState = AddBankState;
 

@@ -2,16 +2,11 @@
 
 import { getSession } from "@/lib/auth";
 import { sql } from "@/lib/db";
+import * as TransactionService from "@/lib/services/transaction.service";
 import { transactionSchema } from "@/lib/validations/transaction";
+import type { ActionState } from "@/types/api";
+import { TransactionData } from "@/types/finance";
 import { revalidatePath } from "next/cache";
-
-import { TransactionData } from "@/lib/types/finance";
-
-export interface TransactionState {
-  success?: boolean;
-  message?: string;
-  errors?: Record<string, string[]>;
-}
 
 export async function getTransactions(
   limit: number = 20,
@@ -21,41 +16,14 @@ export async function getTransactions(
   const session = await getSession();
   if (!session) return { data: [], total: 0 };
 
-  const offset = (page - 1) * limit;
-
   try {
-    const userId = session.userId;
-    const accountFilter = accountId
-      ? sql`AND (t.from_account_id = ${Number(accountId)} OR t.to_account_id = ${Number(accountId)})`
-      : sql``;
-
-    const [countResult] = await sql`
-      SELECT COUNT(*) as total 
-      FROM transactions t
-      WHERE t.user_id = ${userId}
-      ${accountFilter}
-    `;
-
-    const transactions = await sql<TransactionData[]>`
-      SELECT 
-        t.*, 
-        c.name as category_name,
-        af.account_name as from_account_name,
-        at.account_name as to_account_name,
-        COALESCE(af.account_name, at.account_name) as account_name
-      FROM transactions t
-      LEFT JOIN categories c ON t.category_id = c.id
-      LEFT JOIN accounts af ON t.from_account_id = af.id
-      LEFT JOIN accounts at ON t.to_account_id = at.id
-      WHERE t.user_id = ${userId}
-      ${accountFilter}
-      ORDER BY t.transaction_date DESC
-      LIMIT ${limit}
-      OFFSET ${offset}
-    `;
-    return { data: transactions, total: Number(countResult.total) };
+    return await TransactionService.fetchTransactions(Number(session.userId), {
+      limit,
+      page,
+      accountId,
+    });
   } catch (error) {
-    console.error("GetTransactions Error:", error);
+    console.error("GetTransactions Action Error:", error);
     return { data: [], total: 0 };
   }
 }
@@ -67,31 +35,13 @@ export async function getTransfers(
   const session = await getSession();
   if (!session) return { data: [], total: 0 };
 
-  const offset = (page - 1) * limit;
-
   try {
-    const [countResult] = await sql`
-      SELECT COUNT(*) as total 
-      FROM transactions t
-      WHERE t.user_id = ${session.userId} AND t.type = 'transfer'
-    `;
-
-    const transactions = await sql<TransactionData[]>`
-      SELECT 
-        t.*, 
-        af.account_name as from_account_name,
-        at.account_name as to_account_name
-      FROM transactions t
-      JOIN accounts af ON t.from_account_id = af.id
-      JOIN accounts at ON t.to_account_id = at.id
-      WHERE t.user_id = ${session.userId} AND t.type = 'transfer'
-      ORDER BY t.transaction_date DESC
-      LIMIT ${limit}
-      OFFSET ${offset}
-    `;
-    return { data: transactions, total: Number(countResult.total) };
+    return await TransactionService.fetchTransfers(Number(session.userId), {
+      limit,
+      page,
+    });
   } catch (error) {
-    console.error("GetTransfers Error:", error);
+    console.error("GetTransfers Action Error:", error);
     return { data: [], total: 0 };
   }
 }
@@ -107,9 +57,9 @@ export async function getCategories() {
 }
 
 export async function addTransaction(
-  prevState: TransactionState,
+  prevState: ActionState,
   formData: FormData,
-): Promise<TransactionState> {
+): Promise<ActionState> {
   const session = await getSession();
   if (!session) {
     return { success: false, message: "Unauthorized action." };
@@ -135,91 +85,19 @@ export async function addTransaction(
     };
   }
 
-  const {
-    type,
-    amount,
-    category_id,
-    from_account_id,
-    to_account_id,
-    description,
-    transaction_date,
-  } = validated.data;
-
   try {
-    await sql.begin(async (sql) => {
-      // 1. Insert Transaction
-      const [transaction] = await sql`
-        INSERT INTO transactions (
-          user_id, type, amount, category_id, from_account_id, to_account_id, description, transaction_date
-        ) VALUES (
-          ${session.userId}, 
-          ${type}, 
-          ${amount}, 
-          ${category_id ?? null}, 
-          ${from_account_id ?? null},
-          ${to_account_id ?? null},
-          ${description ?? null}, 
-          ${transaction_date ?? new Date().toISOString()}
-        )
-        RETURNING id
-      `;
-
-      // 2. Update Balances and Record History
-      if (type === "expense" && from_account_id) {
-        const [account] = await sql`
-          UPDATE accounts 
-          SET balance = balance - ${amount} 
-          WHERE id = ${from_account_id} AND user_id = ${session.userId}
-          RETURNING balance
-        `;
-        await sql`
-          INSERT INTO account_balance_history (account_id, transaction_id, amount_change, balance_after)
-          VALUES (${from_account_id}, ${transaction.id}, ${-amount}, ${account.balance})
-        `;
-      } else if (type === "income" && from_account_id) {
-        const [account] = await sql`
-          UPDATE accounts 
-          SET balance = balance + ${amount} 
-          WHERE id = ${from_account_id} AND user_id = ${session.userId}
-          RETURNING balance
-        `;
-        await sql`
-          INSERT INTO account_balance_history (account_id, transaction_id, amount_change, balance_after)
-          VALUES (${from_account_id}, ${transaction.id}, ${amount}, ${account.balance})
-        `;
-      } else if (type === "transfer" && from_account_id && to_account_id) {
-        // Source Account (Decrease)
-        const [fromAccount] = await sql`
-          UPDATE accounts 
-          SET balance = balance - ${amount} 
-          WHERE id = ${from_account_id} AND user_id = ${session.userId}
-          RETURNING balance
-        `;
-        await sql`
-          INSERT INTO account_balance_history (account_id, transaction_id, amount_change, balance_after)
-          VALUES (${from_account_id}, ${transaction.id}, ${-amount}, ${fromAccount.balance})
-        `;
-
-        // Destination Account (Increase)
-        const [toAccount] = await sql`
-          UPDATE accounts 
-          SET balance = balance + ${amount} 
-          WHERE id = ${to_account_id} AND user_id = ${session.userId}
-          RETURNING balance
-        `;
-        await sql`
-          INSERT INTO account_balance_history (account_id, transaction_id, amount_change, balance_after)
-          VALUES (${to_account_id}, ${transaction.id}, ${amount}, ${toAccount.balance})
-        `;
-      }
-    });
+    await TransactionService.createTransaction(
+      Number(session.userId),
+      validated.data,
+    );
 
     revalidatePath("/transactions");
     revalidatePath("/accounts");
     revalidatePath("/dashboard");
+
     return { success: true, message: "Transaction recorded successfully." };
   } catch (error) {
-    console.error("AddTransaction Error:", error);
+    console.error("AddTransaction Action Error:", error);
     return { success: false, message: "A database error occurred." };
   }
 }

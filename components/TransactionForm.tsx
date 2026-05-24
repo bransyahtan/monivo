@@ -1,7 +1,8 @@
 "use client";
 
-import { addTransaction, TransactionState } from "@/app/actions/transaction";
-import { Account, Category } from "@/lib/types/finance";
+import { addTransaction } from "@/app/actions/transaction";
+import { ActionState } from "@/types/api";
+import { Account, Category } from "@/types/finance";
 import { HelpCircle, Loader2, Plus, X } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 import { CurrencyInput } from "./CurrencyInput";
@@ -20,235 +21,232 @@ export const TransactionForm = ({
   const [state, action, isPending] = useActionState(addTransaction, {
     success: false,
     message: "",
-  } as TransactionState);
+  } as ActionState);
 
   useEffect(() => {
     if (state.success) {
-      setShowConfirm(false);
-      const timer = setTimeout(() => setIsOpen(false), 0);
-      return () => clearTimeout(timer);
+      setTimeout(() => {
+        setShowConfirm(false);
+        setIsOpen(false);
+      }, 0);
+    } else if (state.message) {
+      setTimeout(() => setShowConfirm(false), 0);
     }
-    if (state.message && !state.success) {
-      setShowConfirm(false);
-    }
-  }, [state]);
+  }, [state.success, state.message]);
 
   return (
     <div className="w-full">
       {!isOpen ? (
         <button
           onClick={() => setIsOpen(true)}
-          className="w-full py-4 md:py-6 rounded-2xl md:rounded-3xl bg-primary hover:bg-primary-light text-background font-black flex items-center justify-center gap-2 transition-all duration-300 shadow-xl shadow-primary/20 hover:scale-[1.01] active:scale-95 cursor-pointer"
+          className="w-full btn-primary py-5 rounded-2xl shadow-lg border border-primary/20"
         >
-          <Plus className="w-5 h-5" />
-          Add New Transaction
+          <Plus className="w-5 h-5 text-background" />
+          Initialize New Record
         </button>
       ) : (
-        <div className="p-5 md:p-8 rounded-3xl md:rounded-[2.5rem] bg-surface/30 border border-white/10 backdrop-blur-xl shadow-2xl space-y-6 animate-in zoom-in duration-300">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg md:text-xl font-black text-text-primary">
-              Record Transaction
-            </h3>
+        <div className="card-formal p-6 md:p-8 space-y-6 animate-in zoom-in duration-300">
+          <div className="flex items-center justify-between border-b border-border pb-4">
+            <div>
+              <h3 className="text-lg font-semibold text-text-primary uppercase tracking-tight">
+                Record Entry
+              </h3>
+              <p className="text-[11px] text-text-secondary mt-1 font-medium">
+                Internal Audit: Financial Operation Logging
+              </p>
+            </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-2 rounded-xl hover:bg-white/5 text-text-secondary transition-colors cursor-pointer"
+              className="p-2 rounded-lg hover:bg-white/5 text-text-secondary transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          <form id="transaction-form" action={action} className="space-y-5">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+          <form id="transaction-form" action={action} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Type Selection */}
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest px-1">
-                  Type
+                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest pl-1">
+                  Operation Type
                 </label>
-                <select
-                  name="type"
-                  required
-                  className="w-full px-4 py-3.5 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 text-text-primary focus:border-primary outline-none transition-all appearance-none cursor-pointer"
-                >
-                  <option
-                    value="expense"
-                    className="bg-surface text-text-primary"
+                <div className="grid grid-cols-2 gap-2">
+                  <label
+                    className={`
+                    flex items-center justify-center gap-2 px-4 py-3 rounded-lg border cursor-pointer transition-all text-xs font-semibold
+                    ${
+                      true
+                        ? "bg-white/3 border-border text-text-secondary hover:border-primary/50"
+                        : "bg-primary text-background border-primary"
+                    }
+                  `}
                   >
-                    Expense
-                  </option>
-                  <option
-                    value="income"
-                    className="bg-surface text-text-primary"
-                  >
-                    Income
-                  </option>
-                  <option
-                    value="transfer"
-                    className="bg-surface text-text-primary"
-                  >
-                    Transfer
-                  </option>
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest px-1">
-                  Amount
-                </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary font-bold text-sm">
-                    Rp
-                  </span>
-                  <CurrencyInput
-                    name="amount"
-                    required
-                    className="w-full pl-10 pr-4 py-3.5 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 text-text-primary focus:border-primary outline-none transition-all"
-                  />
+                    <input
+                      type="radio"
+                      name="type"
+                      value="expense"
+                      defaultChecked
+                      className="hidden"
+                    />
+                    Debit / Expense
+                  </label>
+                  <label className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border bg-white/3 text-text-secondary hover:border-primary/50 cursor-pointer transition-all text-xs font-semibold">
+                    <input
+                      type="radio"
+                      name="type"
+                      value="income"
+                      className="hidden"
+                    />
+                    Credit / Income
+                  </label>
                 </div>
-                {state.errors?.amount && (
-                  <p className="text-[10px] text-red-500 font-bold px-1">
-                    {state.errors.amount[0]}
-                  </p>
-                )}
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+              {/* Amount */}
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest px-1">
-                  Category
+                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest pl-1">
+                  Valuation (IDR)
                 </label>
-                <select
-                  name="category_id"
-                  required
-                  className="w-full px-4 py-3.5 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 text-text-primary focus:border-primary outline-none transition-all appearance-none cursor-pointer"
-                >
-                  <option value="" className="bg-surface text-text-primary">
-                    Select Category
-                  </option>
-                  {categories.map((c) => (
-                    <option
-                      key={c.id}
-                      value={c.id}
-                      className="bg-surface text-text-primary"
-                    >
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
+                <CurrencyInput name="amount" required />
               </div>
 
+              {/* Account */}
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest px-1">
-                  From Account
+                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest pl-1">
+                  Source Account
                 </label>
                 <select
                   name="from_account_id"
                   required
-                  className="w-full px-4 py-3.5 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 text-text-primary focus:border-primary outline-none transition-all appearance-none cursor-pointer"
+                  className="input-formal w-full appearance-none bg-surface"
                 >
-                  <option value="" className="bg-surface text-text-primary">
-                    Select Account
-                  </option>
-                  {accounts.map((a) => (
-                    <option
-                      key={a.id}
-                      value={a.id}
-                      className="bg-surface text-text-primary"
-                    >
-                      {a.account_name} ({a.bank_name})
+                  <option value="">Select Structure</option>
+                  {accounts.map((acc) => (
+                    <option key={acc.id} value={acc.id}>
+                      {acc.account_name} ({acc.bank_name})
                     </option>
                   ))}
                 </select>
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest px-1">
-                Date
-              </label>
-              <input
-                type="datetime-local"
-                name="transaction_date"
-                required
-                defaultValue={new Date().toISOString().slice(0, 16)}
-                className="w-full px-4 py-3.5 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 text-text-primary focus:border-primary outline-none transition-all cursor-pointer scheme-dark"
-              />
-            </div>
+              {/* Category */}
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest pl-1">
+                  Classification
+                </label>
+                <select
+                  name="category_id"
+                  required
+                  className="input-formal w-full appearance-none bg-surface"
+                >
+                  <option value="">Choose Category</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest px-1">
-                Description
-              </label>
-              <textarea
-                name="description"
-                placeholder="What was this for?"
-                required
-                rows={2}
-                className="w-full px-4 py-3.5 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 text-text-primary focus:border-primary outline-none transition-all resize-none"
-              />
+              {/* Date */}
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest pl-1">
+                  Effective Date
+                </label>
+                <input
+                  type="date"
+                  name="transaction_date"
+                  defaultValue={new Date().toISOString().split("T")[0]}
+                  required
+                  className="input-formal w-full"
+                />
+              </div>
+
+              {/* Description */}
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest pl-1">
+                  Memo / Description
+                </label>
+                <input
+                  type="text"
+                  name="description"
+                  placeholder="Internal reference details..."
+                  className="input-formal w-full"
+                />
+              </div>
             </div>
 
             {state.message && (
-              <p
-                className={`text-xs font-bold text-center ${state.success ? "text-primary" : "text-red-500"}`}
+              <div
+                className={`p-4 rounded-lg text-xs font-semibold ${
+                  state.success
+                    ? "bg-primary/10 border border-primary/20 text-primary"
+                    : "bg-red-500/10 border border-red-500/20 text-red-400"
+                }`}
               >
                 {state.message}
-              </p>
+              </div>
             )}
 
-            <button
-              type="button"
-              onClick={() => setShowConfirm(true)}
-              disabled={isPending}
-              className="w-full py-4 md:py-5 rounded-xl md:rounded-2xl bg-primary hover:bg-primary-light text-background font-black transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isPending ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <>
-                  <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
-                  Save Transaction
-                </>
-              )}
-            </button>
+            <div className="flex gap-4 pt-4">
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="btn-secondary flex-1 py-4"
+              >
+                Discard
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowConfirm(true)}
+                disabled={isPending}
+                className="btn-primary flex-2 py-4"
+              >
+                {isPending ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  "Commit Entry"
+                )}
+              </button>
+            </div>
           </form>
         </div>
       )}
 
       {showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="w-full max-w-sm p-8 rounded-[2.5rem] bg-surface border border-white/10 shadow-2xl space-y-6 animate-in zoom-in-95 duration-300">
-            <div className="space-y-2 text-center">
-              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 border border-primary/30">
-                <HelpCircle className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-2xl font-black text-text-primary uppercase tracking-tight">
-                Save Transaction?
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="w-full max-w-sm p-8 rounded-2xl bg-surface border border-border shadow-2xl space-y-6 animate-in zoom-in-95 duration-300 text-center">
+            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2 border border-primary/20">
+              <HelpCircle className="w-7 h-7 text-primary" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold text-text-primary uppercase tracking-tight">
+                Final Verification
               </h3>
-              <p className="text-text-secondary text-sm">
-                Ensure all transaction details including amount and category are
-                correct.
+              <p className="text-text-secondary text-sm font-medium">
+                Verify that this entry complies with your current financial
+                audit requirements before proceeding.
               </p>
             </div>
 
             <div className="flex gap-3">
               <button
-                type="button"
-                onClick={() => setShowConfirm(false)}
                 disabled={isPending}
-                className="flex-1 py-4 rounded-2xl border border-white/10 text-text-secondary hover:bg-white/5 transition-colors font-bold cursor-pointer disabled:opacity-50"
+                onClick={() => setShowConfirm(false)}
+                className="btn-secondary flex-1 py-3"
               >
-                Cancel
+                Re-Audit
               </button>
               <button
                 form="transaction-form"
                 type="submit"
                 disabled={isPending}
-                className="flex-1 py-4 rounded-2xl bg-primary text-background font-black hover:bg-primary-light transition-all shadow-lg shadow-primary/20 cursor-pointer disabled:opacity-50 flex items-center justify-center"
+                className="btn-primary flex-1 py-3"
               >
                 {isPending ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  "Yes, Save"
+                  "Authorize"
                 )}
               </button>
             </div>

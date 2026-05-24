@@ -3,7 +3,7 @@ import { getCategories, getTransactions } from "@/app/actions/transaction";
 import { RecentTransactions } from "@/components/RecentTransactions";
 import { TransactionForm } from "@/components/TransactionForm";
 import { TransactionPagination } from "@/components/TransactionPagination";
-import { Account, Category } from "@/lib/types/finance";
+import { Account, Category } from "@/types/finance";
 
 export default async function TransactionsPage({
   searchParams: searchParamsPromise,

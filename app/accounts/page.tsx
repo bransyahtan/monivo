@@ -1,6 +1,6 @@
 import { getAccounts, getBanks } from "@/app/actions/account";
 import { AccountForm } from "@/components/AccountForm";
-import { Account, Bank } from "@/lib/types/finance";
+import { Account, Bank } from "@/types/finance";
 import { Coins, Landmark, Wallet } from "lucide-react";
 import Link from "next/link";
 

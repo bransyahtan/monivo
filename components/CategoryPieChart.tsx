@@ -1,8 +1,9 @@
 "use client";
 
 import { getCategoryData } from "@/app/actions/account";
+import { CategoryAggregation, ChartDataItem } from "@/types/finance";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 type TabType = "income" | "expense";
@@ -38,7 +39,7 @@ export const CategoryPieChart = ({
   const [mounted, setMounted] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [pieTab, setPieTab] = useState<TabType>("expense");
-  const [allData, setAllData] = useState<{ income: any[]; expense: any[] }>({
+  const [allData, setAllData] = useState<CategoryAggregation>({
     income: [],
     expense: [],
   });
@@ -53,25 +54,26 @@ export const CategoryPieChart = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tempDateRange, setTempDateRange] = useState(dateRange);
 
-  useEffect(() => {
-    setMounted(true);
-    fetchData();
-  }, []);
-
-  const fetchData = () => {
+  const fetchData = useCallback(() => {
     startTransition(async () => {
       const result = await getCategoryData(
         dateRange.start,
         dateRange.end,
         accountId,
       );
-      setAllData(result);
+      setAllData(result as CategoryAggregation);
     });
-  };
+  }, [dateRange, accountId]);
 
   useEffect(() => {
-    if (mounted) fetchData();
-  }, [dateRange]);
+    setTimeout(() => setMounted(true), 0);
+  }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      fetchData();
+    }
+  }, [mounted, fetchData]);
 
   const handleApply = () => {
     setDateRange(tempDateRange);
@@ -84,7 +86,7 @@ export const CategoryPieChart = ({
     );
   }
 
-  const currentPieData = allData[pieTab];
+  const currentPieData: ChartDataItem[] = allData[pieTab];
   const pieTotal = currentPieData.reduce((sum, item) => sum + item.value, 0);
 
   const totalExpense = allData.expense.reduce(
@@ -111,9 +113,9 @@ export const CategoryPieChart = ({
   };
 
   return (
-    <div className="p-6 rounded-3xl bg-surface/30 border border-white/5 backdrop-blur-xl shadow-xl flex flex-col justify-between h-[480px] relative">
+    <div className="p-4 sm:p-6 rounded-3xl bg-surface/30 border border-white/5 backdrop-blur-xl shadow-xl flex flex-col justify-between h-full min-h-[480px] relative">
       <div className="flex flex-col gap-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex bg-white/5 p-1 rounded-xl w-fit">
             <button
               onClick={() => setPieTab("expense")}
@@ -142,7 +144,7 @@ export const CategoryPieChart = ({
               setTempDateRange(dateRange);
               setIsModalOpen(true);
             }}
-            className="flex items-center gap-3 px-3 py-1.5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all cursor-pointer"
+            className="flex items-center justify-between sm:justify-start gap-3 px-3 py-1.5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all cursor-pointer"
           >
             <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary">
               <span>{formatDate(dateRange.start)}</span>
@@ -173,7 +175,7 @@ export const CategoryPieChart = ({
                   type="date"
                   value={tempDateRange.start}
                   onChange={(e) =>
-                    setTempDateRange((prev: any) => ({
+                    setTempDateRange((prev) => ({
                       ...prev,
                       start: e.target.value,
                     }))
@@ -189,7 +191,7 @@ export const CategoryPieChart = ({
                   type="date"
                   value={tempDateRange.end}
                   onChange={(e) =>
-                    setTempDateRange((prev: any) => ({
+                    setTempDateRange((prev) => ({
                       ...prev,
                       end: e.target.value,
                     }))
@@ -217,7 +219,7 @@ export const CategoryPieChart = ({
         </div>
       )}
 
-      <div className="flex-1 flex flex-col sm:flex-row items-center justify-center gap-8 mt-6 overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-8 mt-6 overflow-hidden">
         <div
           className="relative w-[180px] h-[180px] shrink-0"
           style={{ touchAction: "none", outline: "none" }}
@@ -262,7 +264,7 @@ export const CategoryPieChart = ({
                   dataKey="value"
                   paddingAngle={5}
                 >
-                  {currentPieData.map((entry, index) => (
+                  {currentPieData.map((_entry, index) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={CHART_COLORS[index % CHART_COLORS.length]}
@@ -275,25 +277,25 @@ export const CategoryPieChart = ({
           )}
         </div>
 
-        <div className="flex-1 space-y-2 overflow-y-auto w-full px-2 scrollbar-none max-h-[220px]">
+        <div className="flex-1 flex flex-col gap-2 overflow-y-auto w-full px-2 scrollbar-none max-h-[160px] lg:max-h-[220px]">
           {currentPieData.map((item, idx) => {
             const itemColor = CHART_COLORS[idx % CHART_COLORS.length];
             return (
               <div
                 key={idx}
-                className="flex items-center justify-between text-[11px] p-2 rounded-xl hover:bg-white/5 transition-all group border border-transparent hover:border-white/5"
+                className="flex items-center justify-between text-[11px] p-2 rounded-xl hover:bg-white/5 transition-all group border border-transparent hover:border-white/5 shrink-0"
               >
                 <div className="flex items-center gap-3">
                   <span
                     className="w-2.5 h-2.5 rounded-full shrink-0 shadow-lg"
                     style={{ backgroundColor: itemColor }}
                   />
-                  <span className="font-bold text-text-secondary truncate group-hover:text-text-primary transition-colors">
+                  <span className="font-bold text-text-secondary truncate group-hover:text-text-primary transition-colors max-w-[80px] sm:max-w-none">
                     {item.name}
                   </span>
                 </div>
                 <div className="text-right">
-                  <p className="font-black text-text-primary">
+                  <p className="font-black text-text-primary whitespace-nowrap">
                     {formatRupiah(item.value)}
                   </p>
                   <p className="text-[9px] text-text-secondary">
@@ -306,9 +308,9 @@ export const CategoryPieChart = ({
         </div>
       </div>
 
-      <div className="flex items-center justify-between pt-4 mt-2 border-t border-white/5 text-xs">
-        <div className="flex items-center gap-4">
-          <div>
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 mt-2 border-t border-white/5">
+        <div className="flex items-center gap-4 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+          <div className="shrink-0">
             <span className="text-[9px] uppercase tracking-wider text-text-secondary font-bold opacity-50">
               Expenses
             </span>
@@ -316,8 +318,8 @@ export const CategoryPieChart = ({
               {formatRupiah(totalExpense)}
             </p>
           </div>
-          <div className="w-px h-8 bg-white/5" />
-          <div>
+          <div className="w-px h-8 bg-white/5 shrink-0" />
+          <div className="shrink-0">
             <span className="text-[9px] uppercase tracking-wider text-text-secondary font-bold opacity-50">
               Income
             </span>
@@ -326,16 +328,21 @@ export const CategoryPieChart = ({
             </p>
           </div>
         </div>
-        <div className="text-right">
-          <span className="text-[9px] uppercase tracking-wider text-text-secondary font-bold opacity-50">
-            Net
+        <div className="text-right w-full sm:w-auto flex sm:block items-center justify-between sm:justify-end border-t sm:border-t-0 border-white/5 pt-2 sm:pt-0">
+          <span className="text-[9px] uppercase tracking-wider text-text-secondary font-bold opacity-50 sm:hidden">
+            Net Flow
           </span>
-          <p
-            className={`text-xs font-black mt-0.5 ${netFlow >= 0 ? "text-primary" : "text-[#E05B69]"}`}
-          >
-            {netFlow >= 0 ? "+" : ""}
-            {formatRupiah(netFlow)}
-          </p>
+          <div>
+            <span className="text-[9px] uppercase tracking-wider text-text-secondary font-bold opacity-50 hidden sm:block">
+              Net
+            </span>
+            <p
+              className={`text-xs font-black mt-0.5 ${netFlow >= 0 ? "text-primary" : "text-[#E05B69]"}`}
+            >
+              {netFlow >= 0 ? "+" : ""}
+              {formatRupiah(netFlow)}
+            </p>
+          </div>
         </div>
       </div>
     </div>

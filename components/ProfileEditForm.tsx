@@ -4,7 +4,7 @@ import { ProfileState, updateProfile } from "@/app/actions/user";
 import { HelpCircle, Loader2, Save } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 
-import { UserProfile } from "@/lib/types/user";
+import { UserProfile } from "@/types/user";
 
 export const ProfileEditForm = ({ profile }: { profile: UserProfile }) => {
   const [showConfirm, setShowConfirm] = useState(false);
@@ -14,10 +14,10 @@ export const ProfileEditForm = ({ profile }: { profile: UserProfile }) => {
   } as ProfileState);
 
   useEffect(() => {
-    if (state.success || (state.message && !state.success)) {
-      setShowConfirm(false);
+    if (state.success || state.message) {
+      setTimeout(() => setShowConfirm(false), 0);
     }
-  }, [state]);
+  }, [state.success, state.message]);
 
   return (
     <>
@@ -89,7 +89,7 @@ export const ProfileEditForm = ({ profile }: { profile: UserProfile }) => {
 
         {state?.message && (
           <p
-            className={`text-xs font-bold text-center ${(state as any).success ? "text-primary" : "text-red-400"}`}
+            className={`text-xs font-bold text-center ${state.success ? "text-primary" : "text-red-400"}`}
           >
             {state.message}
           </p>

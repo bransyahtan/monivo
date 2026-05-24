@@ -1,8 +1,9 @@
 "use client";
 
 import { getBalanceHistory } from "@/app/actions/account";
+import { ChartDataItem } from "@/types/finance";
 import { ArrowDownRight, ArrowUpRight, Loader2 } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 
 export const BalanceChart = ({
@@ -11,7 +12,7 @@ export const BalanceChart = ({
   accountId?: string | number;
 }) => {
   const [mounted, setMounted] = useState(false);
-  const [data, setData] = useState<{ name: string; value: number }[]>([]);
+  const [data, setData] = useState<ChartDataItem[]>([]);
   const [isPending, startTransition] = useTransition();
 
   const [dateRange, setDateRange] = useState({
@@ -24,25 +25,26 @@ export const BalanceChart = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tempDateRange, setTempDateRange] = useState(dateRange);
 
-  useEffect(() => {
-    setMounted(true);
-    fetchData();
-  }, []);
-
-  const fetchData = () => {
+  const fetchData = useCallback(() => {
     startTransition(async () => {
       const history = await getBalanceHistory(
         dateRange.start,
         dateRange.end,
         accountId,
       );
-      setData(history as { name: string; value: number }[]);
+      setData(history as ChartDataItem[]);
     });
-  };
+  }, [dateRange, accountId]);
 
   useEffect(() => {
-    if (mounted) fetchData();
-  }, [dateRange]);
+    setTimeout(() => setMounted(true), 0);
+  }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      fetchData();
+    }
+  }, [mounted, fetchData]);
 
   const handleApply = () => {
     setDateRange(tempDateRange);

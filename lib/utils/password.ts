@@ -1,8 +1,6 @@
-export interface PasswordValidationResult {
-  isValid: boolean;
-  feedback: string[];
-}
+import { PasswordValidationResult } from "@/types/api";
 
+// Internal implementation detail — intentionally not global
 interface ValidationRule {
   test: (pw: string) => boolean;
   message: string;

@@ -12,10 +12,10 @@ export const PasswordChangeForm = () => {
   } as ProfileState);
 
   useEffect(() => {
-    if (state.success || (state.message && !state.success)) {
-      setShowConfirm(false);
+    if (state.success || state.message) {
+      setTimeout(() => setShowConfirm(false), 0);
     }
-  }, [state]);
+  }, [state.success, state.message]);
 
   const [show, setShow] = useState({
     current: false,
@@ -90,11 +90,11 @@ export const PasswordChangeForm = () => {
           and symbols for stronger security.
         </p>
 
-        {(state as any)?.message && (
+        {state?.message && (
           <p
-            className={`text-xs font-bold text-center ${(state as any).success ? "text-primary" : "text-red-400"}`}
+            className={`text-xs font-bold text-center ${state.success ? "text-primary" : "text-red-400"}`}
           >
-            {(state as any).message}
+            {state.message}
           </p>
         )}
 
