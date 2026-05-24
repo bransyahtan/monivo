@@ -1,8 +1,8 @@
 "use client";
 
-import { addTransaction } from "@/app/actions/transaction";
+import { addTransaction, TransactionState } from "@/app/actions/transaction";
 import { Account, Category } from "@/lib/types/finance";
-import { Loader2, Plus, X } from "lucide-react";
+import { HelpCircle, Loader2, Plus, X } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 import { CurrencyInput } from "./CurrencyInput";
 
@@ -16,14 +16,22 @@ export const TransactionForm = ({
   accounts,
 }: TransactionFormProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [state, action, isPending] = useActionState(addTransaction, {});
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [state, action, isPending] = useActionState(addTransaction, {
+    success: false,
+    message: "",
+  } as TransactionState);
 
   useEffect(() => {
     if (state.success) {
+      setShowConfirm(false);
       const timer = setTimeout(() => setIsOpen(false), 0);
       return () => clearTimeout(timer);
     }
-  }, [state.success]);
+    if (state.message && !state.success) {
+      setShowConfirm(false);
+    }
+  }, [state]);
 
   return (
     <div className="w-full">
@@ -49,7 +57,7 @@ export const TransactionForm = ({
             </button>
           </div>
 
-          <form action={action} className="space-y-5">
+          <form id="transaction-form" action={action} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest px-1">
@@ -110,10 +118,11 @@ export const TransactionForm = ({
                 </label>
                 <select
                   name="category_id"
+                  required
                   className="w-full px-4 py-3.5 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 text-text-primary focus:border-primary outline-none transition-all appearance-none cursor-pointer"
                 >
                   <option value="" className="bg-surface text-text-primary">
-                    Uncategorized
+                    Select Category
                   </option>
                   {categories.map((c) => (
                     <option
@@ -133,10 +142,11 @@ export const TransactionForm = ({
                 </label>
                 <select
                   name="from_account_id"
+                  required
                   className="w-full px-4 py-3.5 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 text-text-primary focus:border-primary outline-none transition-all appearance-none cursor-pointer"
                 >
                   <option value="" className="bg-surface text-text-primary">
-                    No Account
+                    Select Account
                   </option>
                   {accounts.map((a) => (
                     <option
@@ -158,6 +168,7 @@ export const TransactionForm = ({
               <input
                 type="datetime-local"
                 name="transaction_date"
+                required
                 defaultValue={new Date().toISOString().slice(0, 16)}
                 className="w-full px-4 py-3.5 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 text-text-primary focus:border-primary outline-none transition-all cursor-pointer scheme-dark"
               />
@@ -170,6 +181,7 @@ export const TransactionForm = ({
               <textarea
                 name="description"
                 placeholder="What was this for?"
+                required
                 rows={2}
                 className="w-full px-4 py-3.5 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 text-text-primary focus:border-primary outline-none transition-all resize-none"
               />
@@ -184,7 +196,8 @@ export const TransactionForm = ({
             )}
 
             <button
-              type="submit"
+              type="button"
+              onClick={() => setShowConfirm(true)}
               disabled={isPending}
               className="w-full py-4 md:py-5 rounded-xl md:rounded-2xl bg-primary hover:bg-primary-light text-background font-black transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -198,6 +211,48 @@ export const TransactionForm = ({
               )}
             </button>
           </form>
+        </div>
+      )}
+
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="w-full max-w-sm p-8 rounded-[2.5rem] bg-surface border border-white/10 shadow-2xl space-y-6 animate-in zoom-in-95 duration-300">
+            <div className="space-y-2 text-center">
+              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 border border-primary/30">
+                <HelpCircle className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-2xl font-black text-text-primary uppercase tracking-tight">
+                Save Transaction?
+              </h3>
+              <p className="text-text-secondary text-sm">
+                Ensure all transaction details including amount and category are
+                correct.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowConfirm(false)}
+                disabled={isPending}
+                className="flex-1 py-4 rounded-2xl border border-white/10 text-text-secondary hover:bg-white/5 transition-colors font-bold cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                form="transaction-form"
+                type="submit"
+                disabled={isPending}
+                className="flex-1 py-4 rounded-2xl bg-primary text-background font-black hover:bg-primary-light transition-all shadow-lg shadow-primary/20 cursor-pointer disabled:opacity-50 flex items-center justify-center"
+              >
+                {isPending ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  "Yes, Save"
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

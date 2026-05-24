@@ -1,6 +1,7 @@
 "use client";
 
 import { registerUser } from "@/app/actions/auth";
+import { RegisterState } from "@/types/auth";
 import {
   AlertCircle,
   CheckCircle2,
@@ -23,7 +24,10 @@ export const RegisterForm = ({ onToggle }: RegisterFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  const [state, action, isPending] = useActionState(registerUser, {});
+  const [state, action, isPending] = useActionState(registerUser, {
+    success: false,
+    message: "",
+  } as RegisterState);
 
   useEffect(() => {
     if (state.message || state.errors) {

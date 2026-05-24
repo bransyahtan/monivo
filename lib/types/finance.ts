@@ -30,6 +30,8 @@ export interface TransactionData {
   category_name?: string;
   from_account_id?: number | null;
   from_account_name?: string;
+  to_account_id?: number | null;
+  to_account_name?: string;
   account_name?: string;
   description?: string | null;
   transaction_date: string | Date;

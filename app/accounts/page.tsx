@@ -2,6 +2,7 @@ import { getAccounts, getBanks } from "@/app/actions/account";
 import { AccountForm } from "@/components/AccountForm";
 import { Account, Bank } from "@/lib/types/finance";
 import { Coins, Landmark, Wallet } from "lucide-react";
+import Link from "next/link";
 
 export default async function AccountsPage() {
   const accounts = (await getAccounts()) as Account[];
@@ -63,9 +64,10 @@ export default async function AccountsPage() {
               </div>
             ) : (
               accounts.map((acc) => (
-                <div
+                <Link
                   key={acc.id}
-                  className="group relative p-8 rounded-4xl bg-surface/30 border border-white/5 backdrop-blur-xl hover:border-primary/40 hover:bg-surface/40 transition-all duration-500 overflow-hidden shadow-xl"
+                  href={`/accounts/${acc.id}`}
+                  className="group relative p-8 rounded-4xl bg-surface/30 border border-white/5 backdrop-blur-xl hover:border-primary/40 hover:bg-surface/40 transition-all duration-500 overflow-hidden shadow-xl cursor-pointer"
                 >
                   <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.1] transition-opacity duration-500 transform rotate-12">
                     {acc.bank_type === "bank" && (
@@ -115,7 +117,7 @@ export default async function AccountsPage() {
                       </p>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))
             )}
           </div>
