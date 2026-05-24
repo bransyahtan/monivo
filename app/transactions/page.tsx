@@ -1,8 +1,5 @@
-import {
-  getAccounts,
-  getCategories,
-  getTransactions,
-} from "@/app/actions/transaction";
+import { getAccounts } from "@/app/actions/account";
+import { getCategories, getTransactions } from "@/app/actions/transaction";
 import { RecentTransactions } from "@/components/RecentTransactions";
 import { TransactionForm } from "@/components/TransactionForm";
 import { Account, Category } from "@/lib/types/finance";

@@ -11,6 +11,14 @@ export interface Account {
   account_name: string;
   balance: number;
   bank_name?: string;
+  bank_type?: string;
+}
+
+export interface Bank {
+  id: number;
+  name: string;
+  slug: string;
+  type: "bank" | "e-wallet" | "cash";
 }
 
 export interface TransactionData {
