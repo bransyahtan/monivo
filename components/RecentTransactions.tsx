@@ -6,12 +6,18 @@ interface RecentTransactionsProps {
   transactions: TransactionData[];
   title?: string;
   description?: string;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
 }
 
 export const RecentTransactions = ({
   transactions,
   title = "Recent Transactions",
   description = "The details of your latest financial operations.",
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange,
 }: RecentTransactionsProps) => {
   const formatRupiah = (val: number) => {
     return new Intl.NumberFormat("id-ID", {
@@ -129,6 +135,30 @@ export const RecentTransactions = ({
           )}
         </div>
       </div>
+
+      {totalPages > 1 && onPageChange && (
+        <div className="flex items-center justify-between pt-6 border-t border-white/5">
+          <div className="text-[10px] font-black text-text-secondary uppercase tracking-[0.15em]">
+            Page {currentPage} of {totalPages}
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => onPageChange(currentPage - 1)}
+              disabled={currentPage <= 1}
+              className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-text-secondary hover:text-text-primary hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => onPageChange(currentPage + 1)}
+              disabled={currentPage >= totalPages}
+              className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-text-secondary hover:text-text-primary hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

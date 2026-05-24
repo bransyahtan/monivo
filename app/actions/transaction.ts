@@ -15,11 +15,27 @@ export interface TransactionState {
 
 export async function getTransactions(
   limit: number = 20,
-): Promise<TransactionData[]> {
+  accountId?: string | number,
+  page: number = 1,
+): Promise<{ data: TransactionData[]; total: number }> {
   const session = await getSession();
-  if (!session) return [];
+  if (!session) return { data: [], total: 0 };
+
+  const offset = (page - 1) * limit;
 
   try {
+    const userId = session.userId;
+    const accountFilter = accountId
+      ? sql`AND (t.from_account_id = ${Number(accountId)} OR t.to_account_id = ${Number(accountId)})`
+      : sql``;
+
+    const [countResult] = await sql`
+      SELECT COUNT(*) as total 
+      FROM transactions t
+      WHERE t.user_id = ${userId}
+      ${accountFilter}
+    `;
+
     const transactions = await sql<TransactionData[]>`
       SELECT 
         t.*, 
@@ -31,23 +47,35 @@ export async function getTransactions(
       LEFT JOIN categories c ON t.category_id = c.id
       LEFT JOIN accounts af ON t.from_account_id = af.id
       LEFT JOIN accounts at ON t.to_account_id = at.id
-      WHERE t.user_id = ${session.userId}
+      WHERE t.user_id = ${userId}
+      ${accountFilter}
       ORDER BY t.transaction_date DESC
       LIMIT ${limit}
+      OFFSET ${offset}
     `;
-    return transactions;
+    return { data: transactions, total: Number(countResult.total) };
   } catch (error) {
     console.error("GetTransactions Error:", error);
-    return [];
+    return { data: [], total: 0 };
   }
 }
 
 export async function getTransfers(
   limit: number = 20,
-): Promise<TransactionData[]> {
+  page: number = 1,
+): Promise<{ data: TransactionData[]; total: number }> {
   const session = await getSession();
-  if (!session) return [];
+  if (!session) return { data: [], total: 0 };
+
+  const offset = (page - 1) * limit;
+
   try {
+    const [countResult] = await sql`
+      SELECT COUNT(*) as total 
+      FROM transactions t
+      WHERE t.user_id = ${session.userId} AND t.type = 'transfer'
+    `;
+
     const transactions = await sql<TransactionData[]>`
       SELECT 
         t.*, 
@@ -59,11 +87,12 @@ export async function getTransfers(
       WHERE t.user_id = ${session.userId} AND t.type = 'transfer'
       ORDER BY t.transaction_date DESC
       LIMIT ${limit}
+      OFFSET ${offset}
     `;
-    return transactions;
+    return { data: transactions, total: Number(countResult.total) };
   } catch (error) {
     console.error("GetTransfers Error:", error);
-    return [];
+    return { data: [], total: 0 };
   }
 }
 

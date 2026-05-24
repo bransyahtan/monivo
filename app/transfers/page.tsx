@@ -1,12 +1,23 @@
 import { getAccounts } from "@/app/actions/account";
-import { getTransfers } from "@/app/actions/transaction";
+import { getCategories, getTransfers } from "@/app/actions/transaction";
 import { RecentTransactions } from "@/components/RecentTransactions";
+import { TransactionPagination } from "@/components/TransactionPagination";
 import { TransferForm } from "@/components/TransferForm";
-import { Account } from "@/lib/types/finance";
+import { Account, Category } from "@/lib/types/finance";
 
-export default async function TransfersPage() {
+export default async function TransfersPage({
+  searchParams: searchParamsPromise,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const searchParams = await searchParamsPromise;
+  const page = Number(searchParams.page) || 1;
+  const limit = 20;
+
   const accounts = (await getAccounts()) as Account[];
-  const transfers = await getTransfers(20);
+  const categories = (await getCategories()) as Category[];
+  const { data: transfers, total } = await getTransfers(limit, page);
+  const totalPages = Math.ceil(total / limit);
 
   return (
     <div className="max-w-6xl mx-auto space-y-12 animate-in fade-in duration-700 pb-20 px-4 md:px-0">
@@ -33,7 +44,7 @@ export default async function TransfersPage() {
             </h2>
           </div>
           <div className="w-full lg:max-w-4xl">
-            <TransferForm accounts={accounts} />
+            <TransferForm accounts={accounts} categories={categories} />
           </div>
         </section>
 
@@ -45,11 +56,18 @@ export default async function TransfersPage() {
               Inter-Account Audit Trail
             </h2>
           </div>
-          <RecentTransactions
-            transactions={transfers}
-            title="Transfer Statement"
-            description="Historical log of verified internal account movements."
-          />
+          <div className="space-y-4">
+            <RecentTransactions
+              transactions={transfers}
+              title="Transfer Statement"
+              description="Historical log of verified internal account movements."
+            />
+            <TransactionPagination
+              currentPage={page}
+              totalPages={totalPages}
+              totalCount={total}
+            />
+          </div>
         </section>
       </div>
     </div>

@@ -13,7 +13,7 @@ export default async function DashboardPage() {
     redirect("/auth");
   }
 
-  const transactions = await getTransactions(5);
+  const { data: transactions } = await getTransactions(5);
 
   return (
     <div className="space-y-6 font-sans max-w-6xl mx-auto">

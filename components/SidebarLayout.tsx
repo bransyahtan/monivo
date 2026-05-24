@@ -7,6 +7,7 @@ import {
   LogOut,
   Menu,
   ReceiptText,
+  ShieldCheck,
   User,
   Wallet,
   X,
@@ -45,6 +46,14 @@ export const SidebarLayout = ({ children, session }: SidebarLayoutProps) => {
     { name: "Transfer", href: "/transfers", icon: ArrowLeftRight },
     { name: "Transaction", href: "/transactions", icon: ReceiptText },
   ];
+
+  if (session?.role === "admin") {
+    menuItems.push({
+      name: "Admin Center",
+      href: "/admin",
+      icon: ShieldCheck,
+    });
+  }
 
   const handleLogout = async () => {
     await logoutUser();

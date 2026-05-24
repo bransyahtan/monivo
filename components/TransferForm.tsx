@@ -1,16 +1,17 @@
 "use client";
 
 import { addTransaction } from "@/app/actions/transaction";
-import { Account } from "@/lib/types/finance";
+import { Account, Category } from "@/lib/types/finance";
 import { ArrowRightLeft, Loader2, X } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 import { CurrencyInput } from "./CurrencyInput";
 
 interface TransferFormProps {
   accounts: Account[];
+  categories: Category[];
 }
 
-export const TransferForm = ({ accounts }: TransferFormProps) => {
+export const TransferForm = ({ accounts, categories }: TransferFormProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [state, action, isPending] = useActionState(addTransaction, {});
 
@@ -100,6 +101,25 @@ export const TransferForm = ({ accounts }: TransferFormProps) => {
                   ))}
                 </select>
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] px-1">
+                Category
+              </label>
+              <select
+                name="category_id"
+                className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-text-primary focus:border-primary outline-none transition-all appearance-none cursor-pointer"
+              >
+                <option value="" className="bg-surface">
+                  — No Category —
+                </option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id} className="bg-surface">
+                    {c.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

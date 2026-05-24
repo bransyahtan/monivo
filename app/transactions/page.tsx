@@ -2,12 +2,27 @@ import { getAccounts } from "@/app/actions/account";
 import { getCategories, getTransactions } from "@/app/actions/transaction";
 import { RecentTransactions } from "@/components/RecentTransactions";
 import { TransactionForm } from "@/components/TransactionForm";
+import { TransactionPagination } from "@/components/TransactionPagination";
 import { Account, Category } from "@/lib/types/finance";
 
-export default async function TransactionsPage() {
-  const transactions = await getTransactions(20);
+export default async function TransactionsPage({
+  searchParams: searchParamsPromise,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const searchParams = await searchParamsPromise;
+  const page = Number(searchParams.page) || 1;
+  const limit = 20;
+
+  const { data: transactions, total } = await getTransactions(
+    limit,
+    undefined,
+    page,
+  );
   const categories = (await getCategories()) as Category[];
   const accounts = (await getAccounts()) as Account[];
+
+  const totalPages = Math.ceil(total / limit);
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 md:space-y-12 animate-in fade-in duration-700 pb-20">
@@ -46,11 +61,18 @@ export default async function TransactionsPage() {
               Operational Audit Trail
             </h2>
           </div>
-          <RecentTransactions
-            transactions={transactions}
-            title="Registry Statement"
-            description="Historical record of verified transactions."
-          />
+          <div className="space-y-4">
+            <RecentTransactions
+              transactions={transactions}
+              title="Registry Statement"
+              description="Historical record of verified transactions."
+            />
+            <TransactionPagination
+              currentPage={page}
+              totalPages={totalPages}
+              totalCount={total}
+            />
+          </div>
         </section>
       </div>
     </div>
