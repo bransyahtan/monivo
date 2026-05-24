@@ -1,8 +1,8 @@
 "use client";
 
-import { addAccount } from "@/app/actions/account";
+import { AccountState, addAccount } from "@/app/actions/account";
 import { Bank } from "@/lib/types/finance";
-import { Loader2, Plus, X } from "lucide-react";
+import { HelpCircle, Loader2, Plus, X } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 import { CurrencyInput } from "./CurrencyInput";
 
@@ -12,14 +12,22 @@ interface AccountFormProps {
 
 export const AccountForm = ({ banks }: AccountFormProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [state, action, isPending] = useActionState(addAccount, {});
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [state, action, isPending] = useActionState(addAccount, {
+    success: false,
+    message: "",
+  } as AccountState);
 
   useEffect(() => {
     if (state.success) {
+      setShowConfirm(false);
       const timer = setTimeout(() => setIsOpen(false), 0);
       return () => clearTimeout(timer);
     }
-  }, [state.success]);
+    if (state.message && !state.success) {
+      setShowConfirm(false);
+    }
+  }, [state]);
 
   return (
     <div className="w-full">
@@ -50,7 +58,7 @@ export const AccountForm = ({ banks }: AccountFormProps) => {
             </button>
           </div>
 
-          <form action={action} className="space-y-6">
+          <form id="account-form" action={action} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2 md:col-span-1">
                 <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] px-1">
@@ -132,7 +140,8 @@ export const AccountForm = ({ banks }: AccountFormProps) => {
             )}
 
             <button
-              type="submit"
+              type="button"
+              onClick={() => setShowConfirm(true)}
               disabled={isPending}
               className="w-full py-4 rounded-xl bg-primary hover:bg-primary-light text-background font-black transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50"
             >
@@ -146,6 +155,48 @@ export const AccountForm = ({ banks }: AccountFormProps) => {
               )}
             </button>
           </form>
+        </div>
+      )}
+
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="w-full max-w-sm p-8 rounded-[2.5rem] bg-surface border border-white/10 shadow-2xl space-y-6 animate-in zoom-in-95 duration-300">
+            <div className="space-y-2 text-center">
+              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 border border-primary/30">
+                <HelpCircle className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-2xl font-black text-text-primary uppercase tracking-tight">
+                Register Account?
+              </h3>
+              <p className="text-text-secondary text-sm">
+                Make sure the balance and institution selected are correct
+                before proceeding.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowConfirm(false)}
+                disabled={isPending}
+                className="flex-1 py-4 rounded-2xl border border-white/10 text-text-secondary hover:bg-white/5 transition-colors font-bold cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                form="account-form"
+                type="submit"
+                disabled={isPending}
+                className="flex-1 py-4 rounded-2xl bg-primary text-background font-black hover:bg-primary-light transition-all shadow-lg shadow-primary/20 cursor-pointer disabled:opacity-50 flex items-center justify-center"
+              >
+                {isPending ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  "Yes, Register"
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

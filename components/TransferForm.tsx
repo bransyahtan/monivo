@@ -1,8 +1,8 @@
 "use client";
 
-import { addTransaction } from "@/app/actions/transaction";
+import { addTransaction, TransactionState } from "@/app/actions/transaction";
 import { Account, Category } from "@/lib/types/finance";
-import { ArrowRightLeft, Loader2, X } from "lucide-react";
+import { ArrowRightLeft, HelpCircle, Loader2, X } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 import { CurrencyInput } from "./CurrencyInput";
 
@@ -13,14 +13,22 @@ interface TransferFormProps {
 
 export const TransferForm = ({ accounts, categories }: TransferFormProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [state, action, isPending] = useActionState(addTransaction, {});
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [state, action, isPending] = useActionState(addTransaction, {
+    success: false,
+    message: "",
+  } as TransactionState);
 
   useEffect(() => {
     if (state.success) {
+      setShowConfirm(false);
       const timer = setTimeout(() => setIsOpen(false), 0);
       return () => clearTimeout(timer);
     }
-  }, [state.success]);
+    if (state.message && !state.success) {
+      setShowConfirm(false);
+    }
+  }, [state]);
 
   return (
     <div className="w-full">
@@ -56,7 +64,7 @@ export const TransferForm = ({ accounts, categories }: TransferFormProps) => {
             </button>
           </div>
 
-          <form action={action} className="space-y-6">
+          <form id="transfer-form" action={action} className="space-y-6">
             <input type="hidden" name="type" value="transfer" />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -180,7 +188,8 @@ export const TransferForm = ({ accounts, categories }: TransferFormProps) => {
             )}
 
             <button
-              type="submit"
+              type="button"
+              onClick={() => setShowConfirm(true)}
               disabled={isPending}
               className="w-full py-5 rounded-2xl bg-primary hover:bg-primary-light text-background font-black transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50"
             >
@@ -194,6 +203,48 @@ export const TransferForm = ({ accounts, categories }: TransferFormProps) => {
               )}
             </button>
           </form>
+        </div>
+      )}
+
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="w-full max-w-sm p-8 rounded-[2.5rem] bg-surface border border-white/10 shadow-2xl space-y-6 animate-in zoom-in-95 duration-300">
+            <div className="space-y-2 text-center">
+              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 border border-primary/30">
+                <HelpCircle className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-2xl font-black text-text-primary uppercase tracking-tight">
+                Execute Transfer?
+              </h3>
+              <p className="text-text-secondary text-sm">
+                Ensure source and destination accounts are correct before
+                liquidity movement.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowConfirm(false)}
+                disabled={isPending}
+                className="flex-1 py-4 rounded-2xl border border-white/10 text-text-secondary hover:bg-white/5 transition-colors font-bold cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                form="transfer-form"
+                type="submit"
+                disabled={isPending}
+                className="flex-1 py-4 rounded-2xl bg-primary text-background font-black hover:bg-primary-light transition-all shadow-lg shadow-primary/20 cursor-pointer disabled:opacity-50 flex items-center justify-center"
+              >
+                {isPending ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  "Yes, Execute"
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

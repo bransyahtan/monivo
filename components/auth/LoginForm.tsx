@@ -1,6 +1,7 @@
 "use client";
 
 import { loginUser } from "@/app/actions/auth";
+import { LoginState } from "@/types/auth";
 import { Eye, EyeOff, Loader2, Lock, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState } from "react";
@@ -14,7 +15,10 @@ export const LoginForm = ({ onToggle }: LoginFormProps) => {
   const [showForgotModal, setShowForgotModal] = useState(false);
   const router = useRouter();
 
-  const [state, action, isPending] = useActionState(loginUser, {});
+  const [state, action, isPending] = useActionState(loginUser, {
+    success: false,
+    message: "",
+  } as LoginState);
 
   useEffect(() => {
     if (state.success) {
@@ -159,10 +163,12 @@ export const LoginForm = ({ onToggle }: LoginFormProps) => {
                 Forgot Password?
               </h3>
               <p className="text-text-secondary text-sm leading-relaxed text-balance">
-                To maintain the highest security standards for your Monivo account, password resets are processed manually.
+                To maintain the highest security standards for your Monivo
+                account, password resets are processed manually.
               </p>
               <p className="text-text-secondary text-xs font-semibold bg-white/5 border border-white/5 p-3 rounded-xl mt-2">
-                Please contact the System Administrator to verify your identity and safely reset your password.
+                Please contact the System Administrator to verify your identity
+                and safely reset your password.
               </p>
             </div>
 
