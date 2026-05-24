@@ -34,6 +34,9 @@ export const SidebarLayout = ({ children, session }: SidebarLayoutProps) => {
   const isExcluded =
     pathname === "/" ||
     pathname.startsWith("/auth") ||
+    pathname.startsWith("/about") ||
+    pathname.startsWith("/privacy") ||
+    pathname.startsWith("/terms") ||
     pathname.startsWith("/admin");
 
   if (isExcluded) {

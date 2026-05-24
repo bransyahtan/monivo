@@ -137,6 +137,90 @@ export default function HomeClient({ session }: HomeClientProps) {
           </motion.div>
         </div>
 
+        {/* Product Showcase Section */}
+        <section className="mt-40 w-full space-y-20">
+          <div className="text-center space-y-4">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight">
+              Powerful <span className="text-primary">Interfaces.</span>
+            </h2>
+            <p className="text-text-secondary max-w-2xl mx-auto">
+              Experience a clean, professional environment designed for clarity
+              and speed.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="group relative rounded-3xl overflow-hidden border border-white/10 bg-surface/40 hover:border-primary/50 transition-all duration-500 shadow-2xl"
+            >
+              <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none" />
+              <Image
+                src="/screenshot/dashboard.png"
+                alt="Monivo Dashboard"
+                width={1200}
+                height={800}
+                className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute bottom-0 inset-x-0 p-8 pt-20 bg-linear-to-t from-background to-transparent z-20">
+                <span className="text-xs font-black uppercase tracking-widest text-primary">
+                  Holistic View
+                </span>
+                <h4 className="text-xl font-bold mt-2">
+                  Comprehensive Dashboard
+                </h4>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="group relative rounded-3xl overflow-hidden border border-white/10 bg-surface/40 hover:border-primary/50 transition-all duration-500 shadow-2xl"
+            >
+              <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none" />
+              <Image
+                src="/screenshot/accounts.png"
+                alt="Account Management"
+                width={1200}
+                height={800}
+                className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute bottom-0 inset-x-0 p-8 pt-20 bg-linear-to-t from-background to-transparent z-20">
+                <span className="text-xs font-black uppercase tracking-widest text-primary">
+                  Asset Management
+                </span>
+                <h4 className="text-xl font-bold mt-2">Account Oversight</h4>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="group relative rounded-3xl overflow-hidden border border-white/10 bg-surface/40 hover:border-primary/50 transition-all duration-500 shadow-2xl md:col-span-2"
+            >
+              <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none" />
+              <Image
+                src="/screenshot/transactions.png"
+                alt="Transaction History"
+                width={2000}
+                height={1000}
+                className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute bottom-0 inset-x-0 p-8 pt-20 bg-linear-to-t from-background to-transparent z-20">
+                <span className="text-xs font-black uppercase tracking-widest text-primary">
+                  Precision Logs
+                </span>
+                <h4 className="text-xl font-bold mt-2">Transactional Flow</h4>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
         {/* Feature Highlights */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-40 w-full">
           {[
@@ -208,7 +292,27 @@ export default function HomeClient({ session }: HomeClientProps) {
           </div>
         </motion.div>
 
-        <footer className="mt-40 text-center text-text-secondary space-y-4">
+        <footer className="mt-40 mb-20 text-center text-text-secondary space-y-6">
+          <div className="flex flex-wrap justify-center gap-8 text-xs font-bold tracking-widest uppercase opacity-40">
+            <Link
+              href="/about"
+              className="hover:text-primary transition-colors cursor-pointer"
+            >
+              About Us
+            </Link>
+            <Link
+              href="/privacy"
+              className="hover:text-primary transition-colors cursor-pointer"
+            >
+              Privacy Policy
+            </Link>
+            <Link
+              href="/terms"
+              className="hover:text-primary transition-colors cursor-pointer"
+            >
+              Terms of Use
+            </Link>
+          </div>
           <p className="text-xs font-bold tracking-widest uppercase opacity-40">
             &copy; {new Date().getFullYear()} Monivo Financial Systems. All
             Rights Reserved.
