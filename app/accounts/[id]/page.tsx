@@ -4,7 +4,7 @@ import { BalanceChart } from "@/components/BalanceChart";
 import { CategoryPieChart } from "@/components/CategoryPieChart";
 import { RecentTransactions } from "@/components/RecentTransactions";
 import { TransactionPagination } from "@/components/TransactionPagination";
-import { Account } from "@/lib/types/finance";
+import { Account } from "@/types/finance";
 import { ArrowLeft, Coins, Landmark, Wallet } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";

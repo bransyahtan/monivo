@@ -1,7 +1,8 @@
 "use client";
 
-import { addTransaction, TransactionState } from "@/app/actions/transaction";
-import { Account, Category } from "@/lib/types/finance";
+import { addTransaction } from "@/app/actions/transaction";
+import { ActionState } from "@/types/api";
+import { Account, Category } from "@/types/finance";
 import { ArrowRightLeft, HelpCircle, Loader2, X } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 import { CurrencyInput } from "./CurrencyInput";
@@ -17,48 +18,48 @@ export const TransferForm = ({ accounts, categories }: TransferFormProps) => {
   const [state, action, isPending] = useActionState(addTransaction, {
     success: false,
     message: "",
-  } as TransactionState);
+  } as ActionState);
 
   useEffect(() => {
     if (state.success) {
-      setShowConfirm(false);
-      const timer = setTimeout(() => setIsOpen(false), 0);
-      return () => clearTimeout(timer);
+      setTimeout(() => {
+        setShowConfirm(false);
+        setIsOpen(false);
+      }, 0);
+    } else if (state.message) {
+      setTimeout(() => setShowConfirm(false), 0);
     }
-    if (state.message && !state.success) {
-      setShowConfirm(false);
-    }
-  }, [state]);
+  }, [state.success, state.message]);
 
   return (
     <div className="w-full">
       {!isOpen ? (
         <button
           onClick={() => setIsOpen(true)}
-          className="w-full py-5 rounded-3xl bg-primary hover:bg-primary-light text-background font-black flex items-center justify-center gap-3 transition-all duration-300 shadow-xl shadow-primary/20 hover:scale-[1.01] active:scale-95 cursor-pointer uppercase tracking-wider"
+          className="w-full btn-primary py-5 rounded-2xl shadow-lg"
         >
-          <ArrowRightLeft className="w-6 h-6" />
-          New Internal Transfer
+          <ArrowRightLeft className="w-6 h-6 text-background" />
+          <span>New Logistics Transfer</span>
         </button>
       ) : (
-        <div className="p-8 rounded-[2.5rem] bg-surface/30 border border-white/10 backdrop-blur-xl shadow-2xl space-y-8 animate-in zoom-in duration-300">
-          <div className="flex items-center justify-between">
+        <div className="card-formal p-6 md:p-8 space-y-6 animate-in zoom-in duration-300">
+          <div className="flex items-center justify-between border-b border-border pb-4">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-2xl bg-primary/10 text-primary">
-                <ArrowRightLeft className="w-6 h-6" />
+              <div className="p-2.5 rounded-xl bg-primary/10 text-primary">
+                <ArrowRightLeft className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-xl font-black text-text-primary uppercase tracking-tight">
-                  Internal Transfer
+                <h3 className="text-lg font-semibold text-text-primary uppercase tracking-tight">
+                  Asset Relocation
                 </h3>
-                <p className="text-xs text-text-secondary">
-                  Execute liquidity movement between accounts.
+                <p className="text-[11px] text-text-secondary mt-1 font-medium italic">
+                  Internal Ledger: Movement of credit between repositories.
                 </p>
               </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-2 rounded-xl hover:bg-white/5 text-text-secondary transition-colors cursor-pointer"
+              className="p-2 rounded-lg hover:bg-white/5 text-text-secondary transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -67,21 +68,19 @@ export const TransferForm = ({ accounts, categories }: TransferFormProps) => {
           <form id="transfer-form" action={action} className="space-y-6">
             <input type="hidden" name="type" value="transfer" />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] px-1">
-                  Source Account
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest pl-1">
+                  Originating Account
                 </label>
                 <select
                   name="from_account_id"
                   required
-                  className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-text-primary focus:border-primary outline-none transition-all appearance-none cursor-pointer"
+                  className="input-formal w-full appearance-none bg-surface"
                 >
-                  <option value="" className="bg-surface">
-                    Select Source
-                  </option>
+                  <option value="">Select Origin</option>
                   {accounts.map((a) => (
-                    <option key={a.id} value={a.id} className="bg-surface">
+                    <option key={a.id} value={a.id}>
                       {a.account_name} (Rp{" "}
                       {new Intl.NumberFormat("id-ID").format(a.balance)})
                     </option>
@@ -89,20 +88,18 @@ export const TransferForm = ({ accounts, categories }: TransferFormProps) => {
                 </select>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] px-1">
-                  Destination Account
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest pl-1">
+                  Destination Repository
                 </label>
                 <select
                   name="to_account_id"
                   required
-                  className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-text-primary focus:border-primary outline-none transition-all appearance-none cursor-pointer"
+                  className="input-formal w-full appearance-none bg-surface"
                 >
-                  <option value="" className="bg-surface">
-                    Select Destination
-                  </option>
+                  <option value="">Select Destination</option>
                   {accounts.map((a) => (
-                    <option key={a.id} value={a.id} className="bg-surface">
+                    <option key={a.id} value={a.id}>
                       {a.account_name} (Rp{" "}
                       {new Intl.NumberFormat("id-ID").format(a.balance)})
                     </option>
@@ -111,94 +108,83 @@ export const TransferForm = ({ accounts, categories }: TransferFormProps) => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] px-1">
-                Category
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest pl-1">
+                Classification / Logic
               </label>
               <select
                 name="category_id"
-                className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-text-primary focus:border-primary outline-none transition-all appearance-none cursor-pointer"
+                className="input-formal w-full appearance-none bg-surface"
               >
-                <option value="" className="bg-surface">
-                  — No Category —
-                </option>
+                <option value="">— No Specific Logic —</option>
                 {categories.map((c) => (
-                  <option key={c.id} value={c.id} className="bg-surface">
+                  <option key={c.id} value={c.id}>
                     {c.name}
                   </option>
                 ))}
               </select>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] px-1">
-                  Transfer Amount
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest pl-1">
+                  Valuation Magnitude
                 </label>
-                <div className="relative">
-                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-text-secondary font-black text-sm">
-                    IDR
-                  </span>
-                  <CurrencyInput
-                    name="amount"
-                    required
-                    className="w-full pl-14 pr-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-text-primary focus:border-primary outline-none transition-all font-mono"
-                  />
-                </div>
+                <CurrencyInput name="amount" required />
                 {state.errors?.amount && (
-                  <p className="text-[10px] text-red-500 font-bold px-1">
+                  <p className="text-[10px] text-red-400 font-bold px-1 mt-1">
                     {state.errors.amount[0]}
                   </p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] px-1">
-                  Execution Date
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest pl-1">
+                  Execution Timestamp
                 </label>
                 <input
                   type="datetime-local"
                   name="transaction_date"
                   required
                   defaultValue={new Date().toISOString().slice(0, 16)}
-                  className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-text-primary focus:border-primary outline-none transition-all cursor-pointer scheme-dark"
+                  className="input-formal w-full scheme-dark text-xs"
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] px-1">
-                Registry Memo
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest pl-1">
+                Audit Memorandum
               </label>
               <textarea
                 name="description"
-                placeholder="Brief reason for internal movement..."
+                placeholder="Internal justification for capital movement..."
                 required
                 rows={2}
-                className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-text-primary focus:border-primary outline-none transition-all resize-none"
+                className="input-formal w-full resize-none text-[13px]"
               />
             </div>
 
             {state.message && (
-              <p
-                className={`text-xs font-bold text-center ${state.success ? "text-primary" : "text-red-500"}`}
+              <div
+                className={`p-4 rounded-lg text-xs font-semibold ${state.success ? "bg-primary/10 text-primary border border-primary/20" : "bg-red-500/10 text-red-400 border border-red-500/20"}`}
               >
                 {state.message}
-              </p>
+              </div>
             )}
 
             <button
               type="button"
               onClick={() => setShowConfirm(true)}
               disabled={isPending}
-              className="w-full py-5 rounded-2xl bg-primary hover:bg-primary-light text-background font-black transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50"
+              className="btn-primary w-full py-4"
             >
               {isPending ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <>
-                  <ArrowRightLeft className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />
-                  Execute Transfer
+                  <ArrowRightLeft className="w-5 h-5 text-background" />
+                  Authorize Relocation
                 </>
               )}
             </button>
@@ -207,18 +193,18 @@ export const TransferForm = ({ accounts, categories }: TransferFormProps) => {
       )}
 
       {showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="w-full max-w-sm p-8 rounded-[2.5rem] bg-surface border border-white/10 shadow-2xl space-y-6 animate-in zoom-in-95 duration-300">
-            <div className="space-y-2 text-center">
-              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 border border-primary/30">
-                <HelpCircle className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-2xl font-black text-text-primary uppercase tracking-tight">
-                Execute Transfer?
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="w-full max-w-sm p-8 rounded-2xl bg-surface border border-border shadow-2xl space-y-6 animate-in zoom-in-95 duration-300 text-center">
+            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2 border border-primary/20">
+              <HelpCircle className="w-7 h-7 text-primary" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold text-text-primary uppercase tracking-tight">
+                Certify Movement?
               </h3>
-              <p className="text-text-secondary text-sm">
-                Ensure source and destination accounts are correct before
-                liquidity movement.
+              <p className="text-text-secondary text-sm font-medium">
+                Ensure all ledger accounts and magnitude values are audited
+                before finalizing relocation.
               </p>
             </div>
 
@@ -227,20 +213,20 @@ export const TransferForm = ({ accounts, categories }: TransferFormProps) => {
                 type="button"
                 onClick={() => setShowConfirm(false)}
                 disabled={isPending}
-                className="flex-1 py-4 rounded-2xl border border-white/10 text-text-secondary hover:bg-white/5 transition-colors font-bold cursor-pointer disabled:opacity-50"
+                className="btn-secondary flex-1 py-3"
               >
-                Cancel
+                Re-Audit
               </button>
               <button
                 form="transfer-form"
                 type="submit"
                 disabled={isPending}
-                className="flex-1 py-4 rounded-2xl bg-primary text-background font-black hover:bg-primary-light transition-all shadow-lg shadow-primary/20 cursor-pointer disabled:opacity-50 flex items-center justify-center"
+                className="btn-primary flex-1 py-3"
               >
                 {isPending ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  "Yes, Execute"
+                  "Yes, Finalize"
                 )}
               </button>
             </div>

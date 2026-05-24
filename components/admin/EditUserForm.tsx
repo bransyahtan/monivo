@@ -24,17 +24,18 @@ export const EditUserForm = ({ userToEdit }: EditUserFormProps) => {
 
   useEffect(() => {
     if (state?.success) {
-      setShowConfirm(false);
-      const params = new URLSearchParams(window.location.search);
-      params.delete("editUser");
-      const newSearch = params.toString();
-      window.location.href =
-        window.location.pathname + (newSearch ? `?${newSearch}` : "");
+      setTimeout(() => {
+        setShowConfirm(false);
+        const params = new URLSearchParams(window.location.search);
+        params.delete("editUser");
+        const newSearch = params.toString();
+        window.location.href =
+          window.location.pathname + (newSearch ? `?${newSearch}` : "");
+      }, 0);
+    } else if (state?.message) {
+      setTimeout(() => setShowConfirm(false), 0);
     }
-    if (state?.message && !state?.success) {
-      setShowConfirm(false);
-    }
-  }, [state]);
+  }, [state?.success, state?.message]);
 
   return (
     <>

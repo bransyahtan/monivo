@@ -1,11 +1,13 @@
 import { AddBankForm } from "@/components/admin/AddBankForm";
 import { AddCategoryForm } from "@/components/admin/AddCategoryForm";
+import { BanksTab } from "@/components/admin/BanksTab";
+import { CategoriesTab } from "@/components/admin/CategoriesTab";
 import { EditUserForm } from "@/components/admin/EditUserForm";
-import { BanksTab, Bank } from "@/components/admin/BanksTab";
-import { CategoriesTab, Category } from "@/components/admin/CategoriesTab";
-import { UsersTab, User as AdminUser } from "@/components/admin/UsersTab";
+import { UsersTab } from "@/components/admin/UsersTab";
 import { getSession } from "@/lib/auth";
 import { sql } from "@/lib/db";
+import { Bank, Category } from "@/types/finance";
+import { AdminUser } from "@/types/user";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -69,7 +71,9 @@ export default async function AdminPage({ searchParams }: PageProps) {
     }
   }
 
-  const editCategoryId = params.editCategory ? Number(params.editCategory) : null;
+  const editCategoryId = params.editCategory
+    ? Number(params.editCategory)
+    : null;
   let categoryToEdit = null;
   if (editCategoryId) {
     const [category] = await sql`
@@ -131,29 +135,29 @@ export default async function AdminPage({ searchParams }: PageProps) {
   const showUserModal = !!userToEdit;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-start p-4 md:p-8 font-sans">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-start p-2 sm:p-4 md:p-8 font-sans overflow-x-hidden">
       <div className="w-full max-w-6xl space-y-6">
-        <div className="w-full p-6 rounded-xl bg-surface border border-white/5 flex items-center justify-between gap-4">
+        <div className="w-full p-4 sm:p-6 rounded-xl bg-surface border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold text-text-primary tracking-tight">
+            <h1 className="text-lg sm:text-xl font-bold text-text-primary tracking-tight">
               Admin Portal
             </h1>
-            <p className="text-text-secondary text-xs mt-0.5">
+            <p className="text-text-secondary text-[10px] sm:text-xs mt-0.5">
               Configure system institutions and global payment gateway sources.
             </p>
           </div>
           <Link
             href="/"
-            className="px-4 py-2 bg-white/5 border border-white/5 text-text-secondary hover:bg-white/10 hover:text-text-primary transition-all duration-200 text-xs font-semibold cursor-pointer rounded-lg"
+            className="w-full sm:w-auto text-center px-4 py-2 bg-white/5 border border-white/5 text-text-secondary hover:bg-white/10 hover:text-text-primary transition-all duration-200 text-xs font-semibold cursor-pointer rounded-lg"
           >
             Back to Dashboard
           </Link>
         </div>
 
-        <div className="flex border-b border-white/5 gap-2">
+        <div className="flex border-b border-white/5 gap-4 overflow-x-auto scrollbar-none pb-px">
           <Link
             href="?tab=banks"
-            className={`px-4 py-2 text-xs font-bold transition-all border-b-2 ${
+            className={`px-3 py-2 text-xs font-bold transition-all border-b-2 whitespace-nowrap ${
               tab === "banks"
                 ? "border-primary text-primary"
                 : "border-transparent text-text-secondary hover:text-text-primary"
@@ -163,7 +167,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
           </Link>
           <Link
             href="?tab=categories"
-            className={`px-4 py-2 text-xs font-bold transition-all border-b-2 ${
+            className={`px-3 py-2 text-xs font-bold transition-all border-b-2 whitespace-nowrap ${
               tab === "categories"
                 ? "border-primary text-primary"
                 : "border-transparent text-text-secondary hover:text-text-primary"
@@ -173,7 +177,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
           </Link>
           <Link
             href="?tab=users"
-            className={`px-4 py-2 text-xs font-bold transition-all border-b-2 ${
+            className={`px-3 py-2 text-xs font-bold transition-all border-b-2 whitespace-nowrap ${
               tab === "users"
                 ? "border-primary text-primary"
                 : "border-transparent text-text-secondary hover:text-text-primary"
@@ -183,14 +187,25 @@ export default async function AdminPage({ searchParams }: PageProps) {
           </Link>
         </div>
 
-        <div className="p-6 rounded-xl bg-surface border border-white/5 flex flex-col justify-between min-h-[420px]">
-          {tab === "banks" && <BanksTab banks={banks} currentPage={currentPage} />}
-          {tab === "categories" && <CategoriesTab categories={categories} currentPage={currentPage} />}
-          {tab === "users" && <UsersTab users={users} currentPage={currentPage} />}
+        <div className="p-4 sm:p-6 rounded-2xl bg-surface border border-white/5 flex flex-col justify-between min-h-[420px] overflow-hidden">
+          <div className="w-full">
+            {tab === "banks" && (
+              <BanksTab banks={banks} currentPage={currentPage} />
+            )}
+            {tab === "categories" && (
+              <CategoriesTab
+                categories={categories}
+                currentPage={currentPage}
+              />
+            )}
+            {tab === "users" && (
+              <UsersTab users={users} currentPage={currentPage} />
+            )}
+          </div>
 
           {totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between border-t border-white/5 pt-4 mt-4 gap-4">
-              <div className="text-xs text-text-secondary">
+            <div className="flex flex-col sm:flex-row items-center justify-between border-t border-white/5 pt-6 mt-6 gap-4">
+              <div className="text-[10px] sm:text-xs text-text-secondary">
                 Showing{" "}
                 <span className="font-semibold text-text-primary">
                   {offset + 1}
@@ -198,7 +213,12 @@ export default async function AdminPage({ searchParams }: PageProps) {
                 to{" "}
                 <span className="font-semibold text-text-primary">
                   {Math.min(
-                    offset + (tab === "banks" ? banks.length : tab === "categories" ? categories.length : users.length),
+                    offset +
+                      (tab === "banks"
+                        ? banks.length
+                        : tab === "categories"
+                          ? categories.length
+                          : users.length),
                     totalRecords,
                   )}
                 </span>{" "}
@@ -208,7 +228,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
                 </span>{" "}
                 records
               </div>
-              <div className="flex gap-2 w-full sm:w-auto justify-end">
+              <div className="flex gap-2 w-full sm:w-auto justify-center sm:justify-end">
                 <Link
                   href={`?tab=${tab}&page=${currentPage > 1 ? currentPage - 1 : 1}`}
                   aria-disabled={currentPage <= 1}
@@ -218,8 +238,8 @@ export default async function AdminPage({ searchParams }: PageProps) {
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </Link>
-                <div className="flex items-center px-3.5 rounded-lg bg-white/5 border border-white/5 text-xs font-bold text-text-primary">
-                  Page {currentPage} of {totalPages}
+                <div className="flex items-center px-4 rounded-lg bg-white/5 border border-white/5 text-[10px] sm:text-xs font-bold text-text-primary">
+                  {currentPage} / {totalPages}
                 </div>
                 <Link
                   href={`?tab=${tab}&page=${currentPage < totalPages ? currentPage + 1 : totalPages}`}

@@ -26,23 +26,24 @@ export const AddBankForm = ({ bankToEdit = null }: AddBankFormProps) => {
 
   useEffect(() => {
     if (state?.success) {
-      setShowConfirm(false);
-      if (!bankToEdit) {
-        if (formRef.current) {
-          formRef.current.reset();
+      setTimeout(() => {
+        setShowConfirm(false);
+        if (!bankToEdit) {
+          if (formRef.current) {
+            formRef.current.reset();
+          }
+        } else {
+          const params = new URLSearchParams(window.location.search);
+          params.delete("edit");
+          const newSearch = params.toString();
+          window.location.href =
+            window.location.pathname + (newSearch ? `?${newSearch}` : "");
         }
-      } else {
-        const params = new URLSearchParams(window.location.search);
-        params.delete("edit");
-        const newSearch = params.toString();
-        window.location.href =
-          window.location.pathname + (newSearch ? `?${newSearch}` : "");
-      }
+      }, 0);
+    } else if (state?.message) {
+      setTimeout(() => setShowConfirm(false), 0);
     }
-    if (state?.message && !state?.success) {
-      setShowConfirm(false);
-    }
-  }, [state, bankToEdit]);
+  }, [state?.success, state?.message, bankToEdit]);
 
   return (
     <>
@@ -51,16 +52,16 @@ export const AddBankForm = ({ bankToEdit = null }: AddBankFormProps) => {
         key={bankToEdit?.id || "add"}
         ref={formRef}
         action={formAction}
-        className="space-y-4 bg-surface border border-white/5 p-6 rounded-xl"
+        className="card-formal p-6 space-y-5"
       >
         <div>
-          <h3 className="text-lg font-bold text-text-primary tracking-tight">
-            {bankToEdit ? "Edit Asset Source" : "Add Asset Source"}
+          <h3 className="text-base font-semibold text-text-primary uppercase tracking-wider">
+            {bankToEdit ? "Modify Asset Class" : "Define New Asset Class"}
           </h3>
-          <p className="text-[11px] text-text-secondary mt-0.5 leading-normal">
+          <p className="text-[11px] text-text-secondary mt-1 font-medium leading-relaxed opacity-80">
             {bankToEdit
-              ? `Modify configuration for ${bankToEdit.name}`
-              : "Register a new financial institution, e-wallet, or cash storage."}
+              ? "Update the parameters for this financial institution or liquidity source."
+              : "Register a new financial institution, digital wallet, or physical cash storage to the registry."}
           </p>
         </div>
 
@@ -76,61 +77,50 @@ export const AddBankForm = ({ bankToEdit = null }: AddBankFormProps) => {
           </div>
         )}
 
-        <div className="space-y-4">
-          <div className="space-y-1">
-            <label
-              htmlFor="name"
-              className="text-[10px] text-text-secondary uppercase tracking-wider font-bold"
-            >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest pl-1">
               Institution Name
             </label>
             <input
               type="text"
-              id="name"
               name="name"
-              required
               defaultValue={bankToEdit?.name || ""}
-              placeholder="e.g. Bank Central Asia, GoPay"
-              className="w-full px-3 py-2 bg-background/40 border border-white/5 rounded-lg focus:border-primary focus:outline-none transition-all text-text-primary placeholder:text-text-secondary/20 text-xs"
+              required
+              placeholder="e.g. Bank Central Asia"
+              className="input-formal w-full"
             />
             {state?.errors?.name && (
-              <p className="text-[10px] text-red-400 mt-0.5">
+              <p className="text-[10px] text-red-400 font-bold mt-1 px-1">
                 {state.errors.name[0]}
               </p>
             )}
           </div>
 
-          <div className="space-y-1 relative">
-            <label
-              htmlFor="type"
-              className="text-[10px] text-text-secondary uppercase tracking-wider font-bold"
-            >
-              Type Classification
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest pl-1">
+              Source Classification
             </label>
             <div className="relative">
               <select
-                id="type"
                 name="type"
                 required
                 defaultValue={bankToEdit?.type || "bank"}
-                className="w-full px-3 py-2 bg-background/40 border border-white/5 rounded-lg focus:border-primary focus:outline-none transition-all text-text-primary text-xs cursor-pointer appearance-none"
+                className="input-formal w-full appearance-none cursor-pointer"
               >
-                <option value="bank" className="bg-surface text-text-primary">
-                  Bank (BCA, Mandiri, etc)
+                <option value="bank" className="bg-surface">
+                  Standard Banking
                 </option>
-                <option
-                  value="e-wallet"
-                  className="bg-surface text-text-primary"
-                >
-                  E-Wallet (OVO, GoPay, etc)
+                <option value="e-wallet" className="bg-surface">
+                  Digital E-Wallet
                 </option>
-                <option value="cash" className="bg-surface text-text-primary">
-                  Cash (Physical currency)
+                <option value="cash" className="bg-surface">
+                  Physical Assets / Cash
                 </option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-text-secondary">
                 <svg
-                  className="fill-current h-3.5 w-3.5"
+                  className="fill-current h-4 w-4"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                 >
@@ -139,7 +129,7 @@ export const AddBankForm = ({ bankToEdit = null }: AddBankFormProps) => {
               </div>
             </div>
             {state?.errors?.type && (
-              <p className="text-[10px] text-red-400 mt-0.5">
+              <p className="text-[10px] text-red-400 font-bold mt-1 px-1">
                 {state.errors.type[0]}
               </p>
             )}
@@ -148,11 +138,8 @@ export const AddBankForm = ({ bankToEdit = null }: AddBankFormProps) => {
 
         <div className="flex gap-3 pt-2">
           {bankToEdit && (
-            <Link
-              href="/admin"
-              className="px-4 py-2 bg-white/5 border border-white/5 text-text-secondary hover:text-text-primary hover:bg-white/10 font-bold rounded-lg transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer text-xs"
-            >
-              <X className="w-3.5 h-3.5" />
+            <Link href="/admin" className="btn-secondary px-5 py-2.5">
+              <X className="w-4 h-4" />
               <span>Cancel</span>
             </Link>
           )}
@@ -160,21 +147,18 @@ export const AddBankForm = ({ bankToEdit = null }: AddBankFormProps) => {
             type="button"
             onClick={() => setShowConfirm(true)}
             disabled={isPending}
-            className="flex-1 py-2.5 px-4 bg-primary hover:bg-primary/90 text-background font-bold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-xs"
+            className="btn-primary flex-1 py-2.5"
           >
             {isPending ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Saving...</span>
-              </>
+              <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <>
                 {bankToEdit ? (
-                  <Save className="w-3.5 h-3.5" />
+                  <Save className="w-4 h-4" />
                 ) : (
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-4 h-4" />
                 )}
-                <span>{bankToEdit ? "Save Changes" : "Add Source"}</span>
+                <span>{bankToEdit ? "Commit Changes" : "Register Asset"}</span>
               </>
             )}
           </button>
@@ -182,19 +166,18 @@ export const AddBankForm = ({ bankToEdit = null }: AddBankFormProps) => {
       </form>
 
       {showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="w-full max-w-sm p-8 rounded-[2.5rem] bg-surface border border-white/10 shadow-2xl space-y-6 animate-in zoom-in-95 duration-300">
-            <div className="space-y-2 text-center">
-              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 border border-primary/30">
-                <HelpCircle className="w-8 h-8 text-primary" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="w-full max-w-sm p-8 rounded-2xl bg-surface border border-border shadow-2xl space-y-6 animate-in zoom-in-95 duration-300">
+            <div className="space-y-3 text-center">
+              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2 border border-primary/20">
+                <HelpCircle className="w-7 h-7 text-primary" />
               </div>
-              <h3 className="text-2xl font-black text-text-primary uppercase tracking-tight">
-                {bankToEdit ? "Update Source?" : "Add Source?"}
+              <h3 className="text-lg font-semibold text-text-primary uppercase tracking-tight">
+                {bankToEdit ? "Update Source?" : "Confirm Registration?"}
               </h3>
-              <p className="text-text-secondary text-sm">
-                Confirm{" "}
-                {bankToEdit ? "changes to this" : "registration of this"}{" "}
-                financial asset source.
+              <p className="text-text-secondary text-sm font-medium">
+                Verify that all institution parameters are correct before
+                committing to the registry.
               </p>
             </div>
 
@@ -203,18 +186,18 @@ export const AddBankForm = ({ bankToEdit = null }: AddBankFormProps) => {
                 type="button"
                 onClick={() => setShowConfirm(false)}
                 disabled={isPending}
-                className="flex-1 py-4 rounded-2xl border border-white/10 text-text-secondary hover:bg-white/5 transition-colors font-bold cursor-pointer disabled:opacity-50"
+                className="btn-secondary flex-1 py-3"
               >
-                Cancel
+                Go Back
               </button>
               <button
                 form="bank-form"
                 type="submit"
                 disabled={isPending}
-                className="flex-1 py-4 rounded-2xl bg-primary text-background font-black hover:bg-primary-light transition-all shadow-lg shadow-primary/20 cursor-pointer disabled:opacity-50 flex items-center justify-center"
+                className="btn-primary flex-1 py-3"
               >
                 {isPending ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   "Yes, Proceed"
                 )}

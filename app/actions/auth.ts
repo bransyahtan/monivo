@@ -1,6 +1,6 @@
 "use server";
 
-import { sql } from "@/lib/db";
+import * as AuthService from "@/lib/services/auth.service";
 import { loginSchema, registerSchema } from "@/lib/validations/auth";
 import { LoginState, RegisterState } from "@/types/auth";
 import bcrypt from "bcryptjs";
@@ -23,7 +23,7 @@ export async function registerUser(
   if (!validatedFields.success) {
     return {
       success: false,
-      errors: validatedFields.error.flatten().fieldErrors as RegisterState["errors"],
+      errors: validatedFields.error.flatten().fieldErrors,
       message: "Please check your input and try again.",
     };
   }
@@ -32,13 +32,11 @@ export async function registerUser(
     validatedFields.data;
 
   try {
-    const existingUsers = await sql`
-      SELECT username, email, phone_number FROM users 
-      WHERE username = ${username} 
-      OR email = ${email} 
-      OR (phone_number IS NOT NULL AND phone_number = ${phone_number || ""})
-      LIMIT 1
-    `;
+    const existingUsers = await AuthService.checkRegistrationConflicts(
+      username,
+      email,
+      phone_number,
+    );
 
     if (existingUsers.length > 0) {
       const conflict = existingUsers[0];
@@ -58,17 +56,20 @@ export async function registerUser(
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await sql`
-      INSERT INTO users (name, username, email, password, phone_number)
-      VALUES (${name}, ${username}, ${email}, ${hashedPassword}, ${phone_number || null})
-    `;
+    await AuthService.createUser({
+      name,
+      username,
+      email,
+      hashedPassword,
+      phone_number,
+    });
 
     return {
       success: true,
       message: "Registration successful! Please login to your account.",
     };
   } catch (error) {
-    console.error("Registration Error:", error);
+    console.error("Registration Action Error:", error);
     return {
       success: false,
       message: "A database error occurred. Please try again.",
@@ -87,7 +88,7 @@ export async function loginUser(
   if (!validatedFields.success) {
     return {
       success: false,
-      errors: validatedFields.error.flatten().fieldErrors as LoginState["errors"],
+      errors: validatedFields.error.flatten().fieldErrors,
       message: "Invalid credentials format.",
     };
   }
@@ -95,11 +96,8 @@ export async function loginUser(
   const { identifier, password } = validatedFields.data;
 
   try {
-    const [user] = await sql`
-      SELECT id, name, username, password, role, is_active FROM users 
-      WHERE username = ${identifier} OR email = ${identifier} 
-      LIMIT 1
-    `;
+    const users = await AuthService.findUserByIdentifier(identifier);
+    const user = users[0];
 
     if (!user) {
       return {
@@ -147,10 +145,15 @@ export async function loginUser(
     return {
       success: true,
       message: "Login successful!",
-      user: { name: user.name, username: user.username, role: user.role },
+      user: {
+        userId: Number(user.id),
+        name: user.name,
+        username: user.username,
+        role: user.role,
+      },
     };
   } catch (error) {
-    console.error("Login Error:", error);
+    console.error("Login Action Error:", error);
     return { success: false, message: "A system error occurred." };
   }
 }

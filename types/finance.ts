@@ -4,6 +4,7 @@ export interface Category {
   id: number;
   name: string;
   slug?: string;
+  created_at?: string | Date;
 }
 
 export interface Account {
@@ -19,6 +20,13 @@ export interface Bank {
   name: string;
   slug: string;
   type: "bank" | "e-wallet" | "cash";
+  created_at?: string | Date;
+}
+
+export interface TransactionFilters {
+  limit?: number;
+  page?: number;
+  accountId?: string | number;
 }
 
 export interface TransactionData {
@@ -37,4 +45,15 @@ export interface TransactionData {
   transaction_date: string | Date;
   created_at?: string | Date;
   updated_at?: string | Date;
+}
+
+export interface ChartDataItem {
+  name: string;
+  value: number;
+  rawDate?: string;
+}
+
+export interface CategoryAggregation {
+  income: ChartDataItem[];
+  expense: ChartDataItem[];
 }

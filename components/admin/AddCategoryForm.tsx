@@ -48,45 +48,45 @@ export const AddCategoryForm = ({
 
   useEffect(() => {
     if (state?.success) {
-      setShowConfirm(false);
-      if (!categoryToEdit) {
-        if (formRef.current) {
-          formRef.current.reset();
-        }
-        setTimeout(() => {
+      setTimeout(() => {
+        setShowConfirm(false);
+        if (!categoryToEdit) {
+          if (formRef.current) {
+            formRef.current.reset();
+          }
           setName("");
           setSlug("");
-        }, 0);
-      } else {
-        const params = new URLSearchParams(window.location.search);
-        params.delete("editCategory");
-        const newSearch = params.toString();
-        window.location.href =
-          window.location.pathname + (newSearch ? `?${newSearch}` : "");
-      }
+        } else {
+          const params = new URLSearchParams(window.location.search);
+          params.delete("edit");
+          const newSearch = params.toString();
+          window.location.href =
+            window.location.pathname + (newSearch ? `?${newSearch}` : "");
+        }
+      }, 0);
+    } else if (state?.message) {
+      setTimeout(() => setShowConfirm(false), 0);
     }
-    if (state?.message && !state?.success) {
-      setShowConfirm(false);
-    }
-  }, [state, categoryToEdit]);
+  }, [state?.success, state?.message, categoryToEdit]);
 
   return (
     <>
       <form
         id="category-form"
-        key={categoryToEdit?.id || "add-category"}
+        key={categoryToEdit?.id || "add"}
         ref={formRef}
         action={formAction}
-        className="space-y-4 bg-surface border border-white/5 p-6 rounded-xl w-full"
+        className="card-formal p-6 space-y-5"
       >
         <div>
-          <h3 className="text-lg font-bold text-text-primary tracking-tight">
-            {categoryToEdit ? "Edit Category" : "Add Category"}
-          </h3>
-          <p className="text-[11px] text-text-secondary mt-0.5 leading-normal">
+          <h3 className="text-base font-semibold text-text-primary uppercase tracking-wider">
             {categoryToEdit
-              ? `Modify configuration for category "${categoryToEdit.name}"`
-              : "Define a new category to classify transactions (e.g. Food, Transport)."}
+              ? "Modify Classification"
+              : "Define New Classification"}
+          </h3>
+          <p className="text-[11px] text-text-secondary mt-1 font-medium leading-relaxed opacity-80">
+            Establish a new structural category for transaction audit and
+            reporting within the system.
           </p>
         </div>
 
@@ -102,50 +102,42 @@ export const AddCategoryForm = ({
           </div>
         )}
 
-        <div className="space-y-4">
-          <div className="space-y-1">
-            <label
-              htmlFor="name"
-              className="text-[10px] text-text-secondary uppercase tracking-wider font-bold"
-            >
-              Category Name
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest pl-1">
+              Label Name
             </label>
             <input
               type="text"
-              id="name"
               name="name"
-              required
               value={name}
               onChange={handleNameChange}
-              placeholder="e.g. Food & Beverages"
-              className="w-full px-3 py-2 bg-background/40 border border-white/5 rounded-lg focus:border-primary focus:outline-none transition-all text-text-primary placeholder:text-text-secondary/20 text-xs"
+              required
+              placeholder="e.g. Corporate Expenses"
+              className="input-formal w-full"
             />
             {state?.errors?.name && (
-              <p className="text-[10px] text-red-400 mt-0.5">
+              <p className="text-[10px] text-red-400 font-bold mt-1 px-1">
                 {state.errors.name[0]}
               </p>
             )}
           </div>
 
-          <div className="space-y-1">
-            <label
-              htmlFor="slug"
-              className="text-[10px] text-text-secondary uppercase tracking-wider font-bold"
-            >
-              Slug (URL Identifier)
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest pl-1">
+              System Identifier (Slug)
             </label>
             <input
               type="text"
-              id="slug"
               name="slug"
-              required
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
-              placeholder="e.g. food-beverages"
-              className="w-full px-3 py-2 bg-background/40 border border-white/5 rounded-lg focus:border-primary focus:outline-none transition-all text-text-primary placeholder:text-text-secondary/20 text-xs font-mono"
+              required
+              placeholder="corporate-expenses"
+              className="input-formal w-full font-mono bg-white/2"
             />
             {state?.errors?.slug && (
-              <p className="text-[10px] text-red-400 mt-0.5">
+              <p className="text-[10px] text-red-400 font-bold mt-1 px-1">
                 {state.errors.slug[0]}
               </p>
             )}
@@ -153,42 +145,32 @@ export const AddCategoryForm = ({
         </div>
 
         <div className="flex gap-3 pt-2">
-          {categoryToEdit ? (
-            <Link
-              href="?tab=categories"
-              className="px-4 py-2 bg-white/5 border border-white/5 text-text-secondary hover:text-text-primary hover:bg-white/10 font-bold rounded-lg transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer text-xs"
-            >
-              <X className="w-3.5 h-3.5" />
+          {categoryToEdit && (
+            <Link href="/admin" className="btn-secondary px-5 py-2.5">
+              <X className="w-4 h-4" />
               <span>Cancel</span>
-            </Link>
-          ) : (
-            <Link
-              href="?tab=categories"
-              className="px-4 py-2 bg-white/5 border border-white/5 text-text-secondary hover:text-text-primary hover:bg-white/10 font-bold rounded-lg transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer text-xs"
-            >
-              <X className="w-3.5 h-3.5" />
-              <span>Close</span>
             </Link>
           )}
           <button
             type="button"
             onClick={() => setShowConfirm(true)}
             disabled={isPending}
-            className="flex-1 py-2.5 px-4 bg-primary hover:bg-primary/90 text-background font-bold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-xs"
+            className="btn-primary flex-1 py-2.5"
           >
             {isPending ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Saving...</span>
-              </>
+              <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <>
                 {categoryToEdit ? (
-                  <Save className="w-3.5 h-3.5" />
+                  <Save className="w-4 h-4" />
                 ) : (
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-4 h-4" />
                 )}
-                <span>{categoryToEdit ? "Save Changes" : "Add Category"}</span>
+                <span>
+                  {categoryToEdit
+                    ? "Commit Classification"
+                    : "Initialize Category"}
+                </span>
               </>
             )}
           </button>
@@ -196,19 +178,18 @@ export const AddCategoryForm = ({
       </form>
 
       {showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="w-full max-w-sm p-8 rounded-[2.5rem] bg-surface border border-white/10 shadow-2xl space-y-6 animate-in zoom-in-95 duration-300">
-            <div className="space-y-2 text-center">
-              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 border border-primary/30">
-                <HelpCircle className="w-8 h-8 text-primary" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="w-full max-w-sm p-8 rounded-2xl bg-surface border border-border shadow-2xl space-y-6 animate-in zoom-in-95 duration-300">
+            <div className="space-y-3 text-center">
+              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2 border border-primary/20">
+                <HelpCircle className="w-7 h-7 text-primary" />
               </div>
-              <h3 className="text-2xl font-black text-text-primary uppercase tracking-tight">
-                {categoryToEdit ? "Update Category?" : "Add Category?"}
+              <h3 className="text-lg font-semibold text-text-primary uppercase tracking-tight">
+                {categoryToEdit ? "Update Mapping?" : "Confirm Category?"}
               </h3>
-              <p className="text-text-secondary text-sm">
-                Confirm{" "}
-                {categoryToEdit ? "changes to this" : "registration of this"}{" "}
-                category classification.
+              <p className="text-text-secondary text-sm font-medium">
+                Verify this classification structure before indexing it into the
+                system records.
               </p>
             </div>
 
@@ -217,18 +198,18 @@ export const AddCategoryForm = ({
                 type="button"
                 onClick={() => setShowConfirm(false)}
                 disabled={isPending}
-                className="flex-1 py-4 rounded-2xl border border-white/10 text-text-secondary hover:bg-white/5 transition-colors font-bold cursor-pointer disabled:opacity-50"
+                className="btn-secondary flex-1 py-3"
               >
-                Cancel
+                Go Back
               </button>
               <button
                 form="category-form"
                 type="submit"
                 disabled={isPending}
-                className="flex-1 py-4 rounded-2xl bg-primary text-background font-black hover:bg-primary-light transition-all shadow-lg shadow-primary/20 cursor-pointer disabled:opacity-50 flex items-center justify-center"
+                className="btn-primary flex-1 py-3"
               >
                 {isPending ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   "Yes, Proceed"
                 )}

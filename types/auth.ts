@@ -1,25 +1,17 @@
-import { RegisterInput, LoginInput } from "@/lib/validations/auth";
+import { LoginInput, RegisterInput } from "@/lib/validations/auth";
+import type { ActionState } from "./api";
+import { UserSession } from "./user";
 
-export type UserSession = {
-  name: string;
-  username: string;
-  role: 'admin' | 'customer';
-};
-
-export type RegisterState = {
-  success?: boolean;
-  message?: string;
+export interface RegisterState extends ActionState {
   user?: UserSession;
   errors?: {
     [K in keyof RegisterInput]?: string[];
   };
-};
+}
 
-export type LoginState = {
-  success?: boolean;
-  message?: string;
+export interface LoginState extends ActionState {
   user?: UserSession;
   errors?: {
     [K in keyof LoginInput]?: string[];
   };
-};
+}

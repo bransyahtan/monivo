@@ -19,12 +19,11 @@ export default async function DashboardPage() {
     <div className="space-y-6 font-sans max-w-6xl mx-auto">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-black text-text-primary tracking-tight">
-            Welcome back, {session.name}!
+          <h1 className="text-2xl md:text-3xl font-semibold text-text-primary tracking-tight">
+            Welcome back, {session.name}
           </h1>
-          <p className="text-text-secondary text-xs mt-1">
-            Here is the summary of your overall financial standing and cash
-            flow.
+          <p className="text-text-secondary text-sm font-medium mt-1">
+            System Overview - Financial Performance Analysis
           </p>
         </div>
       </div>

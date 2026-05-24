@@ -2,10 +2,14 @@
 
 import { getSession } from "@/lib/auth";
 import { sql } from "@/lib/db";
-import { UserProfile } from "@/lib/types/user";
+import * as UserService from "@/lib/services/user.service";
+import type { ActionState } from "@/types/api";
+import { UserProfile } from "@/types/user";
 import { SignJWT } from "jose";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
+
+export type ProfileState = ActionState;
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "fallback_secret",
@@ -24,11 +28,7 @@ export async function toggleUserActivation(
     const nextStatus = !currentStatus;
     const activatedAt = nextStatus ? new Date() : null;
 
-    await sql`
-      UPDATE users 
-      SET is_active = ${nextStatus}, activated_at = ${activatedAt}
-      WHERE id = ${userId}
-    `;
+    await UserService.updateUserActivation(userId, nextStatus, activatedAt);
 
     revalidatePath("/admin");
     return {
@@ -43,7 +43,7 @@ export async function toggleUserActivation(
 
 export async function updateUser(
   userId: number,
-  prevState: ProfileState,
+  prevState: ActionState,
   formData: FormData,
 ) {
   const session = await getSession();
@@ -63,11 +63,7 @@ export async function updateUser(
   }
 
   try {
-    await sql`
-      UPDATE users
-      SET name = ${name}, role = ${role}
-      WHERE id = ${userId}
-    `;
+    await UserService.updateBasicInfo(userId, { name, role });
 
     revalidatePath("/admin");
     return { success: true, message: "User updated successfully." };
@@ -84,15 +80,12 @@ export async function deleteUser(formData: FormData) {
   }
 
   const userId = Number(formData.get("id"));
-
   if (!userId) {
     return { success: false, message: "User ID is required." };
   }
 
   try {
-    await sql`
-      DELETE FROM users WHERE id = ${userId}
-    `;
+    await UserService.deleteUser(userId);
 
     revalidatePath("/admin");
     return { success: true, message: "User deleted successfully." };
@@ -106,26 +99,11 @@ export async function getProfile(): Promise<UserProfile | null> {
   const session = await getSession();
   if (!session) return null;
 
-  try {
-    const users = await sql<UserProfile[]>`
-      SELECT id, name, username, email, phone_number, role, created_at
-      FROM users
-      WHERE id = ${Number(session.userId)}
-    `;
-    return users[0] || null;
-  } catch (error) {
-    console.error("getProfile error:", error);
-    return null;
-  }
-}
-
-export interface ProfileState {
-  success?: boolean;
-  message?: string;
+  return await UserService.fetchProfile(Number(session.userId));
 }
 
 export async function updateProfile(
-  prevState: ProfileState,
+  prevState: ActionState,
   formData: FormData,
 ) {
   const session = await getSession();
@@ -143,14 +121,10 @@ export async function updateProfile(
     };
   }
 
+  const userId = Number(session.userId);
+
   try {
-    // Check for conflicts with OTHER users
-    const conflicts = await sql`
-      SELECT username, email FROM users
-      WHERE (username = ${username} OR email = ${email})
-        AND id != ${Number(session.userId)}
-      LIMIT 1
-    `;
+    const conflicts = await UserService.checkConflict(userId, username, email);
 
     if (conflicts.length > 0) {
       if (conflicts[0].username === username)
@@ -159,11 +133,12 @@ export async function updateProfile(
         return { success: false, message: "This email is already registered." };
     }
 
-    await sql`
-      UPDATE users
-      SET name = ${name}, username = ${username}, email = ${email}, phone_number = ${phone_number}
-      WHERE id = ${Number(session.userId)}
-    `;
+    await UserService.updateFullProfile(userId, {
+      name,
+      username,
+      email,
+      phone_number,
+    });
 
     // Refresh Session Cookie
     const token = await new SignJWT({
@@ -186,7 +161,7 @@ export async function updateProfile(
     });
 
     revalidatePath("/profile");
-    revalidatePath("/", "layout"); // Revalidate layout to update sidebar
+    revalidatePath("/", "layout");
     return { success: true, message: "Profile updated successfully." };
   } catch (error) {
     console.error("updateProfile error:", error);
@@ -195,7 +170,7 @@ export async function updateProfile(
 }
 
 export async function updatePassword(
-  prevState: ProfileState,
+  prevState: ActionState,
   formData: FormData,
 ) {
   const session = await getSession();
@@ -218,16 +193,17 @@ export async function updatePassword(
     return { success: false, message: "Passwords do not match." };
   }
 
+  const userId = Number(session.userId);
+
   try {
-    const [user] =
-      await sql`SELECT password FROM users WHERE id = ${Number(session.userId)}`;
+    const [user] = await sql`SELECT password FROM users WHERE id = ${userId}`;
     const bcrypt = await import("bcryptjs");
     const isValid = await bcrypt.compare(currentPassword, user.password);
     if (!isValid)
       return { success: false, message: "Current password is incorrect." };
 
     const hashed = await bcrypt.hash(newPassword, 10);
-    await sql`UPDATE users SET password = ${hashed} WHERE id = ${Number(session.userId)}`;
+    await UserService.updatePassword(userId, hashed);
 
     return { success: true, message: "Password updated successfully." };
   } catch (error) {

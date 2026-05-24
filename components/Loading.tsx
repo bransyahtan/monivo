@@ -26,7 +26,7 @@ export default function Loading({ fullScreen = true }: LoadingProps) {
           <div className="absolute inset-2 rounded-full border-2 border-secondary/20 border-b-secondary animate-spin-slow"></div>
           <div className="absolute inset-0 flex items-center justify-center">
             <Image
-              src="/image/icon_monivo.png"
+              src="/images/icon_monivo.png"
               alt="Monivo Icon"
               width={40}
               height={40}

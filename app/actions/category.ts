@@ -3,13 +3,10 @@
 import { getSession } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { categorySchema } from "@/lib/validations/category";
+import { ActionState } from "@/types/api";
 import { revalidatePath } from "next/cache";
 
-export interface CategoryState {
-  success?: boolean;
-  message?: string;
-  errors?: Record<string, string[]>;
-}
+export type CategoryState = ActionState;
 
 export async function addCategory(
   prevState: CategoryState,
@@ -44,10 +41,16 @@ export async function addCategory(
     if (duplicate.length > 0) {
       const match = duplicate[0];
       if (match.name === name) {
-        return { success: false, message: "A category with this name already exists." };
+        return {
+          success: false,
+          message: "A category with this name already exists.",
+        };
       }
       if (match.slug === slug) {
-        return { success: false, message: "A category with this slug already exists." };
+        return {
+          success: false,
+          message: "A category with this slug already exists.",
+        };
       }
     }
 
@@ -98,10 +101,16 @@ export async function updateCategory(
     if (duplicate.length > 0) {
       const match = duplicate[0];
       if (match.name === name) {
-        return { success: false, message: "Another category with this name already exists." };
+        return {
+          success: false,
+          message: "Another category with this name already exists.",
+        };
       }
       if (match.slug === slug) {
-        return { success: false, message: "Another category with this slug already exists." };
+        return {
+          success: false,
+          message: "Another category with this slug already exists.",
+        };
       }
     }
 
