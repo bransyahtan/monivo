@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://monivo.com"),
+  metadataBase: new URL("https://monivo-blue.vercel.app"),
   title: "Monivo | Intelligent Financial Command Center",
   description:
     "Master your portfolio with Monivo. Real-time asset tracking, intelligent insights, and secure financial management for your personal wealth.",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Monivo | Intelligent Financial Command Center",
     description: "Master your portfolio with real-time tracking and insights.",
-    url: "https://monivo.com",
+    url: "https://monivo-blue.vercel.app",
     siteName: "Monivo",
     images: [
       {
@@ -56,6 +56,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { GoogleAnalytics } from "@next/third-parties/google";
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -67,6 +69,7 @@ export default async function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <GoogleAnalytics gaId="G-ETX36LMKEY" />
       <body className="min-h-full flex flex-col">
         <SidebarLayout session={session}>{children}</SidebarLayout>
       </body>

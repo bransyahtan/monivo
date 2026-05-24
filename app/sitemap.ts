@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://monivo.com";
+  const baseUrl = "https://monivo-blue.vercel.app";
 
   return [
     {
