@@ -110,10 +110,11 @@ export const TransactionForm = ({
                 </label>
                 <select
                   name="category_id"
+                  required
                   className="w-full px-4 py-3.5 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 text-text-primary focus:border-primary outline-none transition-all appearance-none cursor-pointer"
                 >
                   <option value="" className="bg-surface text-text-primary">
-                    Uncategorized
+                    Select Category
                   </option>
                   {categories.map((c) => (
                     <option
@@ -133,10 +134,11 @@ export const TransactionForm = ({
                 </label>
                 <select
                   name="from_account_id"
+                  required
                   className="w-full px-4 py-3.5 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 text-text-primary focus:border-primary outline-none transition-all appearance-none cursor-pointer"
                 >
                   <option value="" className="bg-surface text-text-primary">
-                    No Account
+                    Select Account
                   </option>
                   {accounts.map((a) => (
                     <option
@@ -158,6 +160,7 @@ export const TransactionForm = ({
               <input
                 type="datetime-local"
                 name="transaction_date"
+                required
                 defaultValue={new Date().toISOString().slice(0, 16)}
                 className="w-full px-4 py-3.5 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 text-text-primary focus:border-primary outline-none transition-all cursor-pointer scheme-dark"
               />
@@ -170,6 +173,7 @@ export const TransactionForm = ({
               <textarea
                 name="description"
                 placeholder="What was this for?"
+                required
                 rows={2}
                 className="w-full px-4 py-3.5 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 text-text-primary focus:border-primary outline-none transition-all resize-none"
               />

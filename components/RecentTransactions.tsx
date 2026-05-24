@@ -93,8 +93,16 @@ export const RecentTransactions = ({
                 </div>
 
                 <div className="hidden md:block col-span-2">
-                  <span className="text-xs text-text-secondary font-medium">
-                    {tx.account_name || "N/A"}
+                  <span className="text-xs text-text-secondary font-medium truncate block">
+                    {tx.type === "transfer" ? (
+                      <span className="flex items-center gap-1">
+                        {tx.from_account_name}
+                        <span className="text-[10px] opacity-50">➔</span>
+                        {tx.to_account_name}
+                      </span>
+                    ) : (
+                      tx.account_name || "N/A"
+                    )}
                   </span>
                 </div>
 

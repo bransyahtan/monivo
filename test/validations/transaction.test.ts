@@ -6,6 +6,7 @@ describe("transactionSchema", () => {
     type: "expense",
     amount: "50000",
     category_id: "1",
+    from_account_id: "1",
     description: "Lunch at Office",
     transaction_date: "2026-05-24T18:00:00Z",
   };
@@ -45,21 +46,49 @@ describe("transactionSchema", () => {
     }
   });
 
-  it("should accept optional category_id as null or undefined", () => {
+  it("should require category_id for expense/income", () => {
     const noCategory = { ...validTransaction };
     delete (noCategory as Partial<typeof validTransaction>).category_id;
-    const result1 = transactionSchema.safeParse(noCategory);
-    expect(result1.success).toBe(true);
+    const result = transactionSchema.safeParse(noCategory);
+    expect(result.success).toBe(false);
+  });
 
-    const nullCategory = { ...validTransaction, category_id: null };
-    const result2 = transactionSchema.safeParse(nullCategory);
-    expect(result2.success).toBe(true);
+  it("should require description", () => {
+    const noDesc = { ...validTransaction };
+    delete (noDesc as Partial<typeof validTransaction>).description;
+    const result = transactionSchema.safeParse(noDesc);
+    expect(result.success).toBe(false);
+  });
+
+  describe("transfer type", () => {
+    const validTransfer = {
+      type: "transfer",
+      amount: "100000",
+      from_account_id: "1",
+      to_account_id: "2",
+      description: "Internal Transfer",
+    };
+
+    it("should pass with to_account_id and no category_id", () => {
+      const result = transactionSchema.safeParse(validTransfer);
+      expect(result.success).toBe(true);
+    });
+
+    it("should fail if to_account_id is missing", () => {
+      const invalidTransfer = { ...validTransfer };
+      delete (invalidTransfer as Partial<typeof validTransfer>).to_account_id;
+      const result = transactionSchema.safeParse(invalidTransfer);
+      expect(result.success).toBe(false);
+    });
   });
 
   it("should provide default transaction_date if missing", () => {
     const noDate = {
       type: "income",
       amount: 1000,
+      category_id: 1,
+      from_account_id: 1,
+      description: "Refund",
     };
     const result = transactionSchema.safeParse(noDate);
     expect(result.success).toBe(true);
