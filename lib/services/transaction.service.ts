@@ -99,6 +99,25 @@ export async function createTransaction(
   } = data;
 
   return await sql.begin(async (sql) => {
+    // 0. Verify Account Ownership (Security Fix: Prevent IDOR)
+    if (from_account_id) {
+      const [fromAccountExists] = await sql`
+        SELECT id FROM accounts WHERE id = ${from_account_id} AND user_id = ${userId}
+      `;
+      if (!fromAccountExists) {
+        throw new Error("Unauthorized account access (Source)");
+      }
+    }
+
+    if (to_account_id) {
+      const [toAccountExists] = await sql`
+        SELECT id FROM accounts WHERE id = ${to_account_id} AND user_id = ${userId}
+      `;
+      if (!toAccountExists) {
+        throw new Error("Unauthorized account access (Destination)");
+      }
+    }
+
     // 1. Insert Transaction
     const [transaction] = await sql`
       INSERT INTO transactions (
