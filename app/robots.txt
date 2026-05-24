@@ -4,4 +4,4 @@ Disallow: /admin
 Disallow: /api/
 Disallow: /auth/reset-password
 
-Sitemap: https://monivo.com/sitemap.xml
+Sitemap: https://monivo-blue.vercel.app/sitemap.xml
