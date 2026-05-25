@@ -43,7 +43,7 @@ export const CurrencyInput = ({
         onChange={handleChange}
         required={required}
         placeholder={placeholder}
-        className={className}
+        className={`input-formal w-full ${className || ""}`}
         inputMode="numeric"
       />
       <input type="hidden" name={name} value={rawValue} />

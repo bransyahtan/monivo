@@ -22,9 +22,9 @@ export const QuickActions = () => {
 
       <div className="grid grid-cols-3 gap-3 w-full sm:w-auto sm:flex sm:items-center">
         {[
-          { label: "Add Record", href: "/transactions" },
-          { label: "New Asset", href: "/accounts" },
-          { label: "Transfer", href: "/transfers" },
+          { label: "Transactions", href: "/transactions" },
+          { label: "Accounts", href: "/accounts" },
+          { label: "Transfers", href: "/transfers" },
         ].map((action) => (
           <motion.div
             key={action.label}

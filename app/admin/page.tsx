@@ -147,7 +147,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
             </p>
           </div>
           <Link
-            href="/"
+            href="/dashboard"
             className="w-full sm:w-auto text-center px-4 py-2 bg-white/5 border border-white/5 text-text-secondary hover:bg-white/10 hover:text-text-primary transition-all duration-200 text-xs font-semibold cursor-pointer rounded-lg"
           >
             Back to Dashboard
