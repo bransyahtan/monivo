@@ -68,7 +68,7 @@ export const SidebarLayout = ({ children, session }: SidebarLayoutProps) => {
         <div className="space-y-8">
           <div className="flex items-center gap-3 px-2">
             <Image
-              src="/images/logo_monivo.png"
+              src="/images/logo_monivo.webp"
               alt="Monivo Logo"
               width={130}
               height={40}
@@ -149,7 +149,7 @@ export const SidebarLayout = ({ children, session }: SidebarLayoutProps) => {
             <Menu className="w-5 h-5 text-primary" />
           </button>
           <Image
-            src="/images/logo_monivo.png"
+            src="/images/logo_monivo.webp"
             alt="Monivo Logo"
             width={110}
             height={32}
@@ -176,7 +176,7 @@ export const SidebarLayout = ({ children, session }: SidebarLayoutProps) => {
         <div className="space-y-8">
           <div className="flex items-center justify-between">
             <Image
-              src="/images/logo_monivo.png"
+              src="/images/logo_monivo.webp"
               alt="Monivo Logo"
               width={120}
               height={36}

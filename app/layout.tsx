@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     siteName: "Monivo",
     images: [
       {
-        url: "/images/logo_monivo.png",
+        url: "/images/logo_monivo.webp",
         width: 1200,
         height: 630,
         alt: "Monivo Financial Dashboard",
@@ -48,11 +48,11 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Monivo | Intelligent Financial Command Center",
     description: "Master your portfolio with real-time tracking and insights.",
-    images: ["/images/logo_monivo.png"],
+    images: ["/images/logo_monivo.webp"],
   },
   icons: {
-    icon: "/images/icon_monivo.png",
-    apple: "/images/icon_monivo.png",
+    icon: "/images/icon_monivo.webp",
+    apple: "/images/icon_monivo.webp",
   },
 };
 

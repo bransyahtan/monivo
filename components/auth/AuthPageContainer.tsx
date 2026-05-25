@@ -25,7 +25,7 @@ export const AuthPageContainer = () => {
           <div className="flex items-center gap-3 mb-12 relative z-30">
             <div className="p-1.5 bg-surface border border-white/5 rounded-xl shadow-lg shadow-primary/5 flex items-center justify-center">
               <Image
-                src="/images/icon_monivo.png"
+                src="/images/icon_monivo.webp"
                 alt="Monivo Logo"
                 width={36}
                 height={36}
@@ -61,7 +61,7 @@ export const AuthPageContainer = () => {
             className={`absolute inset-0 transition-opacity duration-1000 ${isLogin ? "opacity-100" : "opacity-0"}`}
           >
             <Image
-              src="/images/auth-bg.png"
+              src="/images/auth-bg.webp"
               alt="Monivo Login"
               fill
               className="object-cover"
@@ -98,7 +98,7 @@ export const AuthPageContainer = () => {
             className={`absolute inset-0 transition-opacity duration-1000 ${!isLogin ? "opacity-100" : "opacity-0"}`}
           >
             <Image
-              src="/images/register-bg.png"
+              src="/images/register-bg.webp"
               alt="Monivo Register"
               fill
               className="object-cover"

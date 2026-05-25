@@ -2,7 +2,7 @@
 
 Monivo is a professional-grade financial tracking ecosystem designed to provide total oversight of your personal assets, accounts, and transactions. Built with a focus on visual excellence, security, and actionable insights.
 
-![Monivo Home](public/screenshot/home.png)
+![Monivo Home](public/screenshot/home.webp)
 
 ## ✨ Features
 
@@ -17,15 +17,15 @@ Monivo is a professional-grade financial tracking ecosystem designed to provide 
 
 <div align="center">
   <h3>🏠 Home & Sign In</h3>
-  <img src="public/screenshot/home.png" width="400" />
-  <img src="public/screenshot/signin.png" width="400" />
+  <img src="public/screenshot/home.webp" width="400" />
+  <img src="public/screenshot/signin.webp" width="400" />
   
   <h3>📊 Dashboard & Accounts</h3>
-  <img src="public/screenshot/dashboard.png" width="400" />
-  <img src="public/screenshot/accounts.png" width="400" />
+  <img src="public/screenshot/dashboard.webp" width="400" />
+  <img src="public/screenshot/accounts.webp" width="400" />
   
   <h3>💸 Transactions</h3>
-  <img src="public/screenshot/transactions.png" width="800" />
+  <img src="public/screenshot/transactions.webp" width="800" />
 </div>
 
 ## 🛠️ Tech Stack
