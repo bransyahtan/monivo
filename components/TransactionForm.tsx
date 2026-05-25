@@ -18,6 +18,7 @@ export const TransactionForm = ({
 }: TransactionFormProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [type, setType] = useState<"expense" | "income">("expense");
   const [state, action, isPending] = useActionState(addTransaction, {
     success: false,
     message: "",
@@ -75,9 +76,9 @@ export const TransactionForm = ({
                     className={`
                     flex items-center justify-center gap-2 px-4 py-3 rounded-lg border cursor-pointer transition-all text-xs font-semibold
                     ${
-                      true
-                        ? "bg-white/3 border-border text-text-secondary hover:border-primary/50"
-                        : "bg-primary text-background border-primary"
+                      type === "expense"
+                        ? "bg-primary text-background border-primary"
+                        : "bg-white/3 border-border text-text-secondary hover:border-primary/50"
                     }
                   `}
                   >
@@ -85,16 +86,28 @@ export const TransactionForm = ({
                       type="radio"
                       name="type"
                       value="expense"
-                      defaultChecked
+                      checked={type === "expense"}
+                      onChange={() => setType("expense")}
                       className="hidden"
                     />
                     Debit / Expense
                   </label>
-                  <label className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border bg-white/3 text-text-secondary hover:border-primary/50 cursor-pointer transition-all text-xs font-semibold">
+                  <label
+                    className={`
+                    flex items-center justify-center gap-2 px-4 py-3 rounded-lg border cursor-pointer transition-all text-xs font-semibold
+                    ${
+                      type === "income"
+                        ? "bg-primary text-background border-primary"
+                        : "bg-white/3 border-border text-text-secondary hover:border-primary/50"
+                    }
+                  `}
+                  >
                     <input
                       type="radio"
                       name="type"
                       value="income"
+                      checked={type === "income"}
+                      onChange={() => setType("income")}
                       className="hidden"
                     />
                     Credit / Income
