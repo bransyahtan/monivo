@@ -100,7 +100,7 @@ export default function HomeClient({ session }: HomeClientProps) {
           <div className="relative group p-1.5 bg-slate-900 border border-white/10 rounded-xl shadow-2xl overflow-hidden">
             <div className="absolute inset-0 bg-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
             <Image
-              src="/images/icon_monivo.png"
+              src="/images/icon_monivo.webp"
               alt="Monivo Icon"
               width={34}
               height={34}
@@ -242,7 +242,7 @@ export default function HomeClient({ session }: HomeClientProps) {
             >
               <div className="absolute inset-0 bg-linear-to-br from-emerald-500/10 via-transparent to-blue-500/10 pointer-events-none z-10" />
               <Image
-                src="/screenshot/dashboard.png"
+                src="/screenshot/dashboard.webp"
                 alt="Monivo Dashboard"
                 fill
                 className="object-cover object-top group-hover:scale-[1.02] transition-transform duration-1000 ease-out p-1"
@@ -267,7 +267,7 @@ export default function HomeClient({ session }: HomeClientProps) {
             >
               <div className="absolute inset-0 bg-linear-to-bl from-blue-500/10 to-transparent pointer-events-none z-10" />
               <Image
-                src="/screenshot/accounts.png"
+                src="/screenshot/accounts.webp"
                 alt="Account Management"
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-1000 ease-out p-1"
@@ -285,7 +285,7 @@ export default function HomeClient({ session }: HomeClientProps) {
             >
               <div className="absolute inset-0 bg-linear-to-tr from-emerald-500/5 to-transparent pointer-events-none z-10" />
               <Image
-                src="/screenshot/transactions.png"
+                src="/screenshot/transactions.webp"
                 alt="Transaction History"
                 fill
                 className="object-cover group-hover:scale-[1.01] transition-transform duration-1000 p-1"
@@ -394,7 +394,7 @@ export default function HomeClient({ session }: HomeClientProps) {
               <div className="max-w-sm">
                 <div className="flex items-center gap-3 mb-6">
                   <Image
-                    src="/images/icon_monivo.png"
+                    src="/images/icon_monivo.webp"
                     alt="Monivo Icon"
                     width={28}
                     height={28}
