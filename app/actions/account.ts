@@ -233,8 +233,8 @@ export async function getCategoryData(
       GROUP BY c.name, t.type, t.from_account_id, t.to_account_id
     `;
 
-    const income: { name: string; value: number }[] = [];
-    const expense: { name: string; value: number }[] = [];
+    const incomeMap = new Map<string, number>();
+    const expenseMap = new Map<string, number>();
 
     results.forEach((row) => {
       const name = row.category_name || "Internal Transfer";
@@ -244,19 +244,28 @@ export async function getCategoryData(
         const id = Number(accountId);
         if (row.type === "transfer") {
           if (Number(row.from_account_id) === id) {
-            expense.push({ name: "Transfer Out", value });
+            expenseMap.set("Transfer Out", (expenseMap.get("Transfer Out") || 0) + value);
           } else if (Number(row.to_account_id) === id) {
-            income.push({ name: "Transfer In", value });
+            incomeMap.set("Transfer In", (incomeMap.get("Transfer In") || 0) + value);
           }
         } else {
-          if (row.type === "income") income.push({ name, value });
-          else if (row.type === "expense") expense.push({ name, value });
+          if (row.type === "income") {
+            incomeMap.set(name, (incomeMap.get(name) || 0) + value);
+          } else if (row.type === "expense") {
+            expenseMap.set(name, (expenseMap.get(name) || 0) + value);
+          }
         }
       } else {
-        if (row.type === "income") income.push({ name, value });
-        else if (row.type === "expense") expense.push({ name, value });
+        if (row.type === "income") {
+          incomeMap.set(name, (incomeMap.get(name) || 0) + value);
+        } else if (row.type === "expense") {
+          expenseMap.set(name, (expenseMap.get(name) || 0) + value);
+        }
       }
     });
+
+    const income = Array.from(incomeMap, ([name, value]) => ({ name, value }));
+    const expense = Array.from(expenseMap, ([name, value]) => ({ name, value }));
 
     return { income, expense };
   } catch (error) {
