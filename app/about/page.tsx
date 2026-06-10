@@ -71,9 +71,9 @@ export default function AboutPage() {
         <section className="pt-20 border-t border-white/5 space-y-8">
           <h2 className="text-3xl font-bold">The Vision</h2>
           <p className="text-text-secondary leading-relaxed italic">
-            "Financial management shouldn't feel like a chore. It should feel
+            &ldquo;Financial management shouldn&apos;t feel like a chore. It should feel
             like high-performance engineering for your life. We built Monivo to
-            give YOU the dashboard you deserve."
+            give YOU the dashboard you deserve.&rdquo;
           </p>
           <p className="font-bold text-primary">— Sultan Bransyah, Founder</p>
         </section>

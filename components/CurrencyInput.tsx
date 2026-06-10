@@ -9,6 +9,7 @@ interface CurrencyInputProps {
   placeholder?: string;
   className?: string;
   onWheel?: (e: React.WheelEvent<HTMLInputElement>) => void;
+  onChange?: (value: number) => void;
 }
 
 export const CurrencyInput = ({
@@ -17,6 +18,7 @@ export const CurrencyInput = ({
   required,
   placeholder = "0",
   className,
+  onChange,
 }: CurrencyInputProps) => {
   const formatValue = (val: string | number) => {
     const num = String(val).replace(/\D/g, "");
@@ -33,6 +35,7 @@ export const CurrencyInput = ({
     const val = e.target.value.replace(/\D/g, "");
     setRawValue(val);
     setDisplayValue(formatValue(val));
+    onChange?.(Number(val));
   };
 
   return (

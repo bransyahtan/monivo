@@ -5,11 +5,15 @@ export async function fetchTransactions(
   userId: number,
   filters: TransactionFilters = {},
 ) {
-  const { limit = 20, page = 1, accountId } = filters;
+  const { limit = 20, page = 1, accountId, excludeTransfers } = filters;
   const offset = (page - 1) * limit;
 
   const accountFilter = accountId
     ? sql`AND (t.from_account_id = ${Number(accountId)} OR t.to_account_id = ${Number(accountId)})`
+    : sql``;
+
+  const transferFilter = excludeTransfers
+    ? sql`AND t.type != 'transfer'`
     : sql``;
 
   const [countResult] = await sql`
@@ -17,6 +21,7 @@ export async function fetchTransactions(
     FROM transactions t
     WHERE t.user_id = ${userId}
     ${accountFilter}
+    ${transferFilter}
   `;
 
   const transactions = await sql<TransactionData[]>`
@@ -32,6 +37,7 @@ export async function fetchTransactions(
     LEFT JOIN accounts at ON t.to_account_id = at.id
     WHERE t.user_id = ${userId}
     ${accountFilter}
+    ${transferFilter}
     ORDER BY t.transaction_date DESC
     LIMIT ${limit}
     OFFSET ${offset}

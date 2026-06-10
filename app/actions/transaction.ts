@@ -12,6 +12,7 @@ export async function getTransactions(
   limit: number = 20,
   accountId?: string | number,
   page: number = 1,
+  excludeTransfers: boolean = false,
 ): Promise<{ data: TransactionData[]; total: number }> {
   const session = await getSession();
   if (!session) return { data: [], total: 0 };
@@ -21,6 +22,7 @@ export async function getTransactions(
       limit,
       page,
       accountId,
+      excludeTransfers,
     });
   } catch (error) {
     console.error("GetTransactions Action Error:", error);
@@ -86,12 +88,41 @@ export async function addTransaction(
   }
 
   try {
+    if (validated.data.type === "transfer") {
+      const { from_account_id, to_account_id, amount } = validated.data;
+
+      if (
+        from_account_id &&
+        to_account_id &&
+        String(from_account_id) === String(to_account_id)
+      ) {
+        return {
+          success: false,
+          message: "Source and destination accounts must be different.",
+        };
+      }
+
+      if (from_account_id) {
+        const [sourceAccount] = await sql`
+          SELECT balance FROM accounts 
+          WHERE id = ${from_account_id} AND user_id = ${Number(session.userId)}
+        `;
+        if (sourceAccount && Number(sourceAccount.balance) < Number(amount)) {
+          return {
+            success: false,
+            message: `Insufficient balance. Available: Rp ${new Intl.NumberFormat("id-ID").format(Number(sourceAccount.balance))}.`,
+          };
+        }
+      }
+    }
+
     await TransactionService.createTransaction(
       Number(session.userId),
       validated.data,
     );
 
     revalidatePath("/transactions");
+    revalidatePath("/transfers");
     revalidatePath("/accounts");
     revalidatePath("/dashboard");
 

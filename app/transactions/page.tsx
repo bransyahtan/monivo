@@ -18,6 +18,7 @@ export default async function TransactionsPage({
     limit,
     undefined,
     page,
+    true,
   );
   const categories = (await getCategories()) as Category[];
   const accounts = (await getAccounts()) as Account[];
@@ -40,7 +41,6 @@ export default async function TransactionsPage({
       </div>
 
       <div className="grid grid-cols-1 gap-10 md:gap-16 px-4 md:px-0">
-        {/* Form Section */}
         <section className="space-y-6">
           <div className="flex items-center gap-3 px-1">
             <div className="w-1.5 h-6 bg-primary rounded-full"></div>
@@ -53,7 +53,6 @@ export default async function TransactionsPage({
           </div>
         </section>
 
-        {/* List Section */}
         <section className="space-y-6">
           <div className="flex items-center gap-3 px-1">
             <div className="w-1.5 h-6 bg-primary rounded-full"></div>
