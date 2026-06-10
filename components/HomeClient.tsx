@@ -333,7 +333,7 @@ export default function HomeClient({ session }: HomeClientProps) {
                     desc: "Your data is strictly yours. AES-256 encryption ensures total privacy at the core.",
                     color: "slate",
                   },
-                ].map((f, i) => (
+                ].map((f) => (
                   <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}

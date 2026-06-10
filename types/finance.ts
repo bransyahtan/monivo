@@ -27,6 +27,7 @@ export interface TransactionFilters {
   limit?: number;
   page?: number;
   accountId?: string | number;
+  excludeTransfers?: boolean;
 }
 
 export interface TransactionData {
