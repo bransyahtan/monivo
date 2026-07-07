@@ -145,12 +145,10 @@ export const AddCategoryForm = ({
         </div>
 
         <div className="flex gap-3 pt-2">
-          {categoryToEdit && (
-            <Link href="/admin" className="btn-secondary px-5 py-2.5">
-              <X className="w-4 h-4" />
-              <span>Cancel</span>
-            </Link>
-          )}
+          <Link href="/admin" className="btn-secondary px-5 py-2.5">
+            <X className="w-4 h-4" />
+            <span>Cancel</span>
+          </Link>
           <button
             type="button"
             onClick={() => setShowConfirm(true)}
